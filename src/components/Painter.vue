@@ -9,6 +9,7 @@
       <div>
         <el-button type="primary" size="default" @click="addLayer">Add Layer</el-button>
         <el-button type="primary" size="default" @click="changeTool(Tool.pencil)">Pencil</el-button>
+        <el-button type="primary" size="default" @click="changeTool(Tool.eraser)">Eraser</el-button>
       </div>
       <div class="relative">
         <canvas v-for="layer in layers" :ref="setCanvasRef" class="absolute top-0" :width="config.width"
@@ -67,58 +68,167 @@ function addLayer() {
   console.log(canvasRefs);
 }
 
+
 enum Tool {
   pencil = 0,
   eraser
 }
-
-function changeTool(type: Tool) {
-  let sx, sy = 0
-  isableDraw.value = false
-  const onMousedown = (e: MouseEvent) => {
-    currentCtx.value!.strokeStyle = defaultPencilConfig.color
-    currentCtx.value!.lineWidth = defaultPencilConfig.lineWidth
-    sx = e.clientX - currentLayerRef.value!.offsetLeft
-    sy = e.clientY - currentLayerRef.value!.offsetTop
-    currentCtx.value!.moveTo(sx, sy)
-    isableDraw.value = true
-  }
-  if (type === Tool.pencil) {
-    initPencil()
-  } else if (type === Tool.eraser) {
-
-  }
-  currentLayerRef.value!.onmousedown = onMousedown
+interface ToolEventsObject {
+  onMousedown: (e: MouseEvent) => any
+  onMousemove: (e: MouseEvent) => any
+  onMouseup: (e: MouseEvent) => any
+  onMouseleave: (e: MouseEvent) => any
 }
-const isableDraw = ref(false)
-function initPencil() {
-  let mx, my = 0
-  const onMousedown = (e: MouseEvent) => {
-    alert(e);
-    currentCtx.value!.beginPath()
-  }
-  const onMousemove = (e: MouseEvent) => {
-    mx = e.clientX - currentLayerRef.value!.offsetLeft;
-    my = e.clientY - currentLayerRef.value!.offsetTop;
-    // const cbx = currentCtx.value!.getImageData(
-    //   e.offsetX - currentCtx.value!.lineWidth / 2,
-    //   e.offsetY - currentCtx.value!.lineWidth / 2,
-    //   currentCtx.value!.lineWidth * 2,
-    //   currentCtx.value!.lineWidth * 2
-    // );
-    if (isableDraw.value) {
-      currentCtx.value!.lineTo(mx - 8, my - 49)
-      currentCtx.value!.stroke()
+
+let currentTool = Tool.pencil
+function changeTool(type: Tool) {
+  currentTool = type
+}
+function initTools() {
+  const pencil = initPencil()
+  const eraser = initEraser()
+  const getCurrentToolEvents: () => ToolEventsObject = () => {
+    if (currentTool === Tool.pencil) {
+      return pencil
+    } else if (currentTool === Tool.eraser) {
+      return eraser
+    } else {
+      return pencil
     }
   }
+  const onMousedown = (e: MouseEvent) => {
+    console.log(currentTool);
+    getCurrentToolEvents().onMousedown(e)
+  }
+  const onMousemove = (e: MouseEvent) => {
+    getCurrentToolEvents().onMousemove(e)
+  }
   const onMouseup = (e: MouseEvent) => {
-    isableDraw.value = false
-    currentCtx.value!.closePath()
+    getCurrentToolEvents().onMouseup(e)
+  }
+  const onMouseleave = (e: MouseEvent) => {
+    getCurrentToolEvents().onMouseleave(e)
   }
   currentLayerRef.value!.onmousedown = onMousedown
   currentLayerRef.value!.onmousemove = onMousemove
   currentLayerRef.value!.onmouseup = onMouseup
-  currentLayerRef.value!.onmouseleave = onMouseup
+  currentLayerRef.value!.onmouseleave = onMouseleave
+}
+onMounted(() => {
+  initTools()
+})
+
+// 画点函数
+function drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) {
+  let startAngle = 0
+  let endAngle = Math.PI * 2
+  let anticlockwise = true
+  ctx.moveTo(x, y)
+  ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);
+  ctx.fill();
+}
+
+// 划线函数
+function drawLine(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, width: number) {
+  // ctx.save()
+  ctx.lineWidth = width
+  ctx.lineCap = "round"
+  ctx.lineJoin = "round"
+  ctx.moveTo(x1, y1)
+  ctx.lineTo(x2, y2)
+  ctx.stroke()
+  // ctx.restore()
+}
+
+let lastAxis = {
+  x: 0,
+  y: 0
+}
+function initPencil(): ToolEventsObject {
+  let isPainting = false
+  let ctx = currentCtx.value!
+  ctx.lineWidth = defaultPencilConfig.lineWidth
+  ctx.strokeStyle = defaultPencilConfig.color
+  ctx.fillStyle = defaultPencilConfig.color
+  const onMousedown = (e: MouseEvent) => {
+    let sx, sy = 0
+    isPainting = true
+    sx = e.offsetX - currentLayerRef.value!.offsetLeft;
+    sy = e.offsetY - currentLayerRef.value!.offsetTop;
+    lastAxis.x = sx
+    lastAxis.y = sy
+    if (isPainting) {
+      ctx.beginPath()
+      drawCircle(ctx, sx, sy, ctx.lineWidth / 2)
+      ctx.closePath()
+      ctx.beginPath()
+    }
+  }
+  const onMousemove = (e: MouseEvent) => {
+    let mx, my = 0
+    mx = e.offsetX - currentLayerRef.value!.offsetLeft;
+    my = e.offsetY - currentLayerRef.value!.offsetTop;
+    // const cbx = ctx.getImageData(
+    //   e.offsetX - ctx.lineWidth / 2,
+    //   e.offsetY - ctx.lineWidth / 2,
+    //   ctx.lineWidth * 2,
+    //   ctx.lineWidth * 2
+    // );
+    if (isPainting) {
+      // drawCircle(ctx, mx, my, ctx.lineWidth)
+      drawLine(ctx, lastAxis.x, lastAxis.y, mx, my, ctx.lineWidth)
+      lastAxis.x = mx
+      lastAxis.y = my
+    }
+  }
+  const onMouseup = (e: MouseEvent) => {
+    isPainting = false
+    ctx.closePath()
+  }
+  const onMouseleave = onMouseup
+  return {
+    onMousedown: useThrottleFn(onMousedown, 10),
+    onMousemove: useThrottleFn(onMousemove, 10),
+    onMouseup,
+    onMouseleave
+  }
+
+}
+
+function initEraser(): ToolEventsObject {
+  let isClearing = false
+  let ctx = currentCtx.value!
+  const onMousedown = (e: MouseEvent) => {
+    let sx, sy = 0
+    isClearing = true
+    sx = e.offsetX - currentLayerRef.value!.offsetLeft;
+    sy = e.offsetY - currentLayerRef.value!.offsetTop;
+    lastAxis.x = sx
+    lastAxis.y = sy
+    if (isClearing) {
+      // ctx.globalCompositeOperation = "destination-out"
+      // ctx.arc(sx, sy, ctx.lineWidth / 2, 0, Math.PI * 2)
+      // ctx.clip()
+      // ctx.clearRect(sx, sy, ctx.lineWidth, ctx.lineWidth)
+    }
+  }
+  const onMousemove = (e: MouseEvent) => {
+    let mx, my = 0
+    mx = e.offsetX - currentLayerRef.value!.offsetLeft;
+    my = e.offsetY - currentLayerRef.value!.offsetTop;
+
+  }
+  const onMouseup = (e: MouseEvent) => {
+    isClearing = false
+    // ctx.closePath()
+  }
+  const onMouseleave = onMouseup
+  return {
+    onMousedown,
+    onMousemove,
+    onMouseup,
+    onMouseleave
+  }
 }
 </script>
 
