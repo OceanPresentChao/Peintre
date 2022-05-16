@@ -97,7 +97,7 @@ function initTools() {
     }
   }
   const onMousedown = (e: MouseEvent) => {
-    console.log(currentTool);
+    console.log(Tool[currentTool]);
     getCurrentToolEvents().onMousedown(e)
   }
   const onMousemove = (e: MouseEvent) => {
@@ -118,38 +118,41 @@ onMounted(() => {
   initTools()
 })
 
-// 画点函数
-function drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) {
-  let startAngle = 0
-  let endAngle = Math.PI * 2
-  let anticlockwise = true
-  ctx.moveTo(x, y)
-  ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);
-  ctx.fill();
-}
 
-// 划线函数
-function drawLine(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, width: number) {
-  // ctx.save()
-  ctx.lineWidth = width
-  ctx.lineCap = "round"
-  ctx.lineJoin = "round"
-  ctx.moveTo(x1, y1)
-  ctx.lineTo(x2, y2)
-  ctx.stroke()
-  // ctx.restore()
-}
 
 let lastAxis = {
   x: 0,
   y: 0
 }
+
+const emptyEventFun = (e: MouseEvent) => { }
 function initPencil(): ToolEventsObject {
   let isPainting = false
   let ctx = currentCtx.value!
   ctx.lineWidth = defaultPencilConfig.lineWidth
   ctx.strokeStyle = defaultPencilConfig.color
   ctx.fillStyle = defaultPencilConfig.color
+  // 画点函数
+  const drawCircle = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) => {
+    let startAngle = 0
+    let endAngle = Math.PI * 2
+    let anticlockwise = true
+    ctx.moveTo(x, y)
+    ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);
+    ctx.fill();
+  }
+
+  // 划线函数
+  const drawLine = (ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, width: number) => {
+    // ctx.save()
+    ctx.lineWidth = width
+    ctx.lineCap = "round"
+    ctx.lineJoin = "round"
+    ctx.moveTo(x1, y1)
+    ctx.lineTo(x2, y2)
+    ctx.stroke()
+    // ctx.restore()
+  }
   const onMousedown = (e: MouseEvent) => {
     let sx, sy = 0
     isPainting = true
@@ -168,12 +171,6 @@ function initPencil(): ToolEventsObject {
     let mx, my = 0
     mx = e.offsetX - currentLayerRef.value!.offsetLeft;
     my = e.offsetY - currentLayerRef.value!.offsetTop;
-    // const cbx = ctx.getImageData(
-    //   e.offsetX - ctx.lineWidth / 2,
-    //   e.offsetY - ctx.lineWidth / 2,
-    //   ctx.lineWidth * 2,
-    //   ctx.lineWidth * 2
-    // );
     if (isPainting) {
       // drawCircle(ctx, mx, my, ctx.lineWidth)
       drawLine(ctx, lastAxis.x, lastAxis.y, mx, my, ctx.lineWidth)
@@ -185,19 +182,36 @@ function initPencil(): ToolEventsObject {
     isPainting = false
     ctx.closePath()
   }
-  const onMouseleave = onMouseup
+  const onMouseleave = emptyEventFun
   return {
     onMousedown: useThrottleFn(onMousedown, 10),
     onMousemove: useThrottleFn(onMousemove, 10),
     onMouseup,
     onMouseleave
   }
-
 }
 
 function initEraser(): ToolEventsObject {
   let isClearing = false
   let ctx = currentCtx.value!
+  const clearCircle = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) => {
+    ctx.save()
+    ctx.arc(x, y, radius, 0, Math.PI * 2)
+    ctx.clip()
+    ctx.clearRect(x - radius, y - radius, radius * 2, radius * 2)
+    ctx.restore()
+  }
+  const clearLine = (ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, width: number) => {
+    ctx.save()
+    ctx.lineWidth = width
+    ctx.lineCap = "round"
+    ctx.lineJoin = "round"
+    ctx.globalCompositeOperation = "destination-out"
+    ctx.moveTo(x1, y1)
+    ctx.lineTo(x2, y2)
+    ctx.stroke()
+    ctx.restore()
+  }
   const onMousedown = (e: MouseEvent) => {
     let sx, sy = 0
     isClearing = true
@@ -206,26 +220,30 @@ function initEraser(): ToolEventsObject {
     lastAxis.x = sx
     lastAxis.y = sy
     if (isClearing) {
-      // ctx.globalCompositeOperation = "destination-out"
-      // ctx.arc(sx, sy, ctx.lineWidth / 2, 0, Math.PI * 2)
-      // ctx.clip()
-      // ctx.clearRect(sx, sy, ctx.lineWidth, ctx.lineWidth)
+      ctx.beginPath()
+      clearCircle(ctx, sx, sy, ctx.lineWidth / 2)
+      ctx.closePath()
+      ctx.beginPath()
     }
   }
   const onMousemove = (e: MouseEvent) => {
     let mx, my = 0
     mx = e.offsetX - currentLayerRef.value!.offsetLeft;
     my = e.offsetY - currentLayerRef.value!.offsetTop;
-
+    if (isClearing) {
+      clearLine(ctx, lastAxis.x, lastAxis.y, mx, my, ctx.lineWidth)
+      lastAxis.x = mx
+      lastAxis.y = my
+    }
   }
   const onMouseup = (e: MouseEvent) => {
     isClearing = false
-    // ctx.closePath()
+    ctx.closePath()
   }
-  const onMouseleave = onMouseup
+  const onMouseleave = emptyEventFun
   return {
-    onMousedown,
-    onMousemove,
+    onMousedown: useThrottleFn(onMousedown, 10),
+    onMousemove: useThrottleFn(onMousemove, 10),
     onMouseup,
     onMouseleave
   }
