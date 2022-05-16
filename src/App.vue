@@ -16,6 +16,10 @@
   font-weight: normal;
 }
 
+body {
+  background-color: rgba(67, 67, 242, 0.585);
+}
+
 main {
   display: flex;
   flex-direction: column;

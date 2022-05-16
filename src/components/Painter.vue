@@ -11,17 +11,27 @@
         <el-button type="primary" size="default" @click="changeTool(Tool.pencil)">Pencil</el-button>
         <el-button type="primary" size="default" @click="changeTool(Tool.eraser)">Eraser</el-button>
       </div>
-      <div class="relative">
+      <div class="relative" ref="canvasContainerRef">
         <canvas v-for="layer in layers" :ref="setCanvasRef" class="absolute top-0" :width="config.width"
           :height="config.height"></canvas>
+        <canvas :width="config.width" :height="config.height"></canvas>
       </div>
-      {{ currentLayerNum }}
-    </div>
+      <div>
+        current layer id:{{ currentLayer?.id }}
+        layers num:{{ canvasRefs.length }}
+      </div>
+      <div>
+        <el-button type="primary" size="default" text v-for="layer in layers" @click="changeLayer(layer.id)">{{ layer }}
+        </el-button>
 
+      </div>
+    </div>
   </div>
 </template>
 
-<script setup lang="ts">import type { ComputedRef } from 'vue';
+<script setup lang="ts">
+import type { ComputedRef } from 'vue';
+import { nanoid } from "nanoid"
 
 const showCanvas = ref(true)
 function toggleCanvas() {
@@ -36,6 +46,15 @@ const defaultPencilConfig = {
   color: '#000',
   lineWidth: 10
 }
+interface Layer extends Object {
+  id: string
+  canvas: HTMLCanvasElement | null
+}
+interface LayerContainer {
+  [layerid: string]: Layer
+}
+const layers = ref<LayerContainer>({})
+const canvasContainerRef = ref<HTMLDivElement | null>(null)
 const canvasRefs = ref<HTMLCanvasElement[]>([])
 function setCanvasRef(el: any) {
   if (el) {
@@ -43,29 +62,30 @@ function setCanvasRef(el: any) {
     canvasRefs.value.push(el as HTMLCanvasElement)
   }
 }
-const layers = ref<Array<any>>([{ a: 100 }, { b: 200 }])
+let currentLayer = ref<Layer | null>(null)
 const currentLayerRef: ComputedRef<HTMLCanvasElement | null> = computed(() => {
-  if (canvasRefs.value.length) {
-    return canvasRefs.value[canvasRefs.value.length - 1]
-  } else {
-    return null
-  }
-})
-const currentLayerNum: ComputedRef<number | null> = computed(() => {
-  if (canvasRefs.value.length) {
-    return canvasRefs.value.length - 1
-  } else {
-    return null
-  }
+  console.log("LAYER REF CHANGE!");
+  if (!currentLayer.value) { return null }
+  return currentLayer.value.canvas
 })
 let currentCtx: ComputedRef<CanvasRenderingContext2D | null> = computed(() => {
-  if (!currentLayerRef.value) return null
-  return currentLayerRef.value.getContext('2d')
+  console.log("CTX change!");
+  if (!currentLayer.value || !currentLayer.value.canvas) return null
+  return currentLayer.value.canvas.getContext('2d')
 })
 function addLayer() {
   if (!layers.value) return
-  layers.value.push({ c: 200 })
-  console.log(canvasRefs);
+  const id = nanoid()
+  const newlayer: Layer = { id: id, canvas: null }
+  layers.value[id] = newlayer
+  nextTick(() => {
+    layers.value[id].canvas = canvasRefs.value[canvasRefs.value.length - 1]
+    currentLayer.value = newlayer
+    console.log(layers);
+  })
+}
+function changeLayer(layerid: string) {
+  currentLayer.value = layers.value[layerid]
 }
 
 
@@ -109,16 +129,17 @@ function initTools() {
   const onMouseleave = (e: MouseEvent) => {
     getCurrentToolEvents().onMouseleave(e)
   }
-  currentLayerRef.value!.onmousedown = onMousedown
-  currentLayerRef.value!.onmousemove = onMousemove
-  currentLayerRef.value!.onmouseup = onMouseup
-  currentLayerRef.value!.onmouseleave = onMouseleave
+  canvasContainerRef.value!.onmousedown = onMousedown
+  canvasContainerRef.value!.onmousemove = onMousemove
+  canvasContainerRef.value!.onmouseup = onMouseup
+  canvasContainerRef.value!.onmouseleave = onMouseleave
 }
+addLayer()
 onMounted(() => {
-  initTools()
+  nextTick(() => {
+    initTools()
+  })
 })
-
-
 
 let lastAxis = {
   x: 0,
@@ -128,10 +149,9 @@ let lastAxis = {
 const emptyEventFun = (e: MouseEvent) => { }
 function initPencil(): ToolEventsObject {
   let isPainting = false
-  let ctx = currentCtx.value!
-  ctx.lineWidth = defaultPencilConfig.lineWidth
-  ctx.strokeStyle = defaultPencilConfig.color
-  ctx.fillStyle = defaultPencilConfig.color
+  currentCtx.value!.lineWidth = defaultPencilConfig.lineWidth
+  currentCtx.value!.strokeStyle = defaultPencilConfig.color
+  currentCtx.value!.fillStyle = defaultPencilConfig.color
   // 画点函数
   const drawCircle = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) => {
     let startAngle = 0
@@ -161,10 +181,10 @@ function initPencil(): ToolEventsObject {
     lastAxis.x = sx
     lastAxis.y = sy
     if (isPainting) {
-      ctx.beginPath()
-      drawCircle(ctx, sx, sy, ctx.lineWidth / 2)
-      ctx.closePath()
-      ctx.beginPath()
+      currentCtx.value!.beginPath()
+      drawCircle(currentCtx.value!, sx, sy, currentCtx.value!.lineWidth / 2)
+      currentCtx.value!.closePath()
+      currentCtx.value!.beginPath()
     }
   }
   const onMousemove = (e: MouseEvent) => {
@@ -173,14 +193,14 @@ function initPencil(): ToolEventsObject {
     my = e.offsetY - currentLayerRef.value!.offsetTop;
     if (isPainting) {
       // drawCircle(ctx, mx, my, ctx.lineWidth)
-      drawLine(ctx, lastAxis.x, lastAxis.y, mx, my, ctx.lineWidth)
+      drawLine(currentCtx.value!, lastAxis.x, lastAxis.y, mx, my, currentCtx.value!.lineWidth)
       lastAxis.x = mx
       lastAxis.y = my
     }
   }
   const onMouseup = (e: MouseEvent) => {
     isPainting = false
-    ctx.closePath()
+    currentCtx.value!.closePath()
   }
   const onMouseleave = emptyEventFun
   return {
@@ -193,7 +213,6 @@ function initPencil(): ToolEventsObject {
 
 function initEraser(): ToolEventsObject {
   let isClearing = false
-  let ctx = currentCtx.value!
   const clearCircle = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) => {
     ctx.save()
     ctx.arc(x, y, radius, 0, Math.PI * 2)
@@ -220,10 +239,10 @@ function initEraser(): ToolEventsObject {
     lastAxis.x = sx
     lastAxis.y = sy
     if (isClearing) {
-      ctx.beginPath()
-      clearCircle(ctx, sx, sy, ctx.lineWidth / 2)
-      ctx.closePath()
-      ctx.beginPath()
+      currentCtx.value!.beginPath()
+      clearCircle(currentCtx.value!, sx, sy, currentCtx.value!.lineWidth / 2)
+      currentCtx.value!.closePath()
+      currentCtx.value!.beginPath()
     }
   }
   const onMousemove = (e: MouseEvent) => {
@@ -231,14 +250,14 @@ function initEraser(): ToolEventsObject {
     mx = e.offsetX - currentLayerRef.value!.offsetLeft;
     my = e.offsetY - currentLayerRef.value!.offsetTop;
     if (isClearing) {
-      clearLine(ctx, lastAxis.x, lastAxis.y, mx, my, ctx.lineWidth)
+      clearLine(currentCtx.value!, lastAxis.x, lastAxis.y, mx, my, currentCtx.value!.lineWidth)
       lastAxis.x = mx
       lastAxis.y = my
     }
   }
   const onMouseup = (e: MouseEvent) => {
     isClearing = false
-    ctx.closePath()
+    currentCtx.value!.closePath()
   }
   const onMouseleave = emptyEventFun
   return {
