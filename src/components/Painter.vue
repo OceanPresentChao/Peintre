@@ -53,6 +53,7 @@ interface Layer extends Object {
 interface LayerContainer {
   [layerid: string]: Layer
 }
+
 const layers = ref<LayerContainer>({})
 const canvasContainerRef = ref<HTMLDivElement | null>(null)
 const canvasRefs = ref<HTMLCanvasElement[]>([])
