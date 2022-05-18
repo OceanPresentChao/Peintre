@@ -1,8 +1,14 @@
-# starter-unplugin
+# Peintre
 
-This template should help get you started developing with Vue 3 with unplugin in Vite.
+一个开箱即用的画板组件
 
-Unplugin supports:vue-use、vue3、element-plus,and you can add more plugins by yourself.
+## Todo
+1. 多图层 √
+2. 切换画笔颜色、大小
+3. 图形工具
+4. 压感支持
+5. 触屏设备支持
+6. 图层拖拽摆放
 
 ## Recommended IDE Setup
 
