@@ -1,20 +1,13 @@
 import type { ComputedRef, Ref } from "vue"
 import type { ToolEventsObject } from "./type"
 
-const defaultPencilConfig = {
-    color: '#000',
-    lineWidth: 10
-}
-export function initPencil(context: Ref<CanvasRenderingContext2D | null> | ComputedRef<CanvasRenderingContext2D | null>): ToolEventsObject {
+export function usePencil(context: Ref<CanvasRenderingContext2D | null> | ComputedRef<CanvasRenderingContext2D | null>): ToolEventsObject {
     let isPainting = false
     const lastAxis = {
         x: 0,
         y: 0
     }
     const emptyEventFun = (e: MouseEvent) => { }
-    context.value!.lineWidth = defaultPencilConfig.lineWidth
-    context.value!.strokeStyle = defaultPencilConfig.color
-    context.value!.fillStyle = defaultPencilConfig.color
     // 画点函数
     const drawCircle = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) => {
         let startAngle = 0

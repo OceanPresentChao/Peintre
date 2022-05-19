@@ -1,4 +1,4 @@
-<template>
+usePenciluseEraser<template>
   <div>
     <header>
       <!-- Header content -->
@@ -11,10 +11,14 @@
         <el-button type="primary" size="default" @click="changeTool(Tool.pencil)">Pencil</el-button>
         <el-button type="primary" size="default" @click="changeTool(Tool.eraser)">Eraser</el-button>
       </div>
+      <div>
+        <el-color-picker v-model="currentColor" :predefine="predefineColors" />
+        <el-slider v-model="currentLineWidth" show-input :min="1" :max="500" :step="1" />
+      </div>
       <div class="relative" ref="canvasContainerRef">
-        <canvas v-for="layer in layers" :ref="setCanvasRef" class="absolute top-0" :width="config.width"
-          :height="config.height"></canvas>
-        <canvas :width="config.width" :height="config.height"></canvas>
+        <canvas v-for="layer in layers" :ref="setCanvasRef" class="absolute top-0" :width="canvasConfig.width"
+          :height="canvasConfig.height"></canvas>
+        <canvas :width="canvasConfig.width" :height="canvasConfig.height"></canvas>
       </div>
       <div>
         current layer id:{{ currentLayer?.id }}
@@ -32,13 +36,13 @@
 <script setup lang="ts">
 import type { ComputedRef, Ref } from 'vue';
 import { nanoid } from "nanoid"
-import { initEraser, initPencil } from '@/tools';
+import { useEraser, usePencil } from '@/tools';
 import type { ToolEventsObject } from '@/tools/type';
 const showCanvas = ref(true)
 function toggleCanvas() {
   showCanvas.value = !showCanvas.value
 }
-const config = {
+const canvasConfig = {
   width: 800,
   height: 600,
   top: 0
@@ -63,9 +67,11 @@ function setCanvasRef(el: any) {
 }
 let currentLayer = ref<Layer | null>(null)
 let currentCtx: ComputedRef<CanvasRenderingContext2D | null> = computed(() => {
-  console.log("CTX change!");
+  // console.log("CTX change!");
   if (!currentLayer.value || !currentLayer.value.canvas) return null
-  return currentLayer.value.canvas.getContext('2d')
+  const ctx = currentLayer.value.canvas.getContext('2d')
+  // if (ctx) ctx.globalCompositeOperation = 'destination-atop';
+  return ctx
 })
 function addLayer() {
   if (!layers.value) return
@@ -75,27 +81,25 @@ function addLayer() {
   nextTick(() => {
     layers.value[id].canvas = canvasRefs.value[canvasRefs.value.length - 1]
     currentLayer.value = newlayer
-    console.log(layers);
+    // console.log(layers);
   })
 }
 function changeLayer(layerid: string) {
   currentLayer.value = layers.value[layerid]
 }
 
-
 enum Tool {
   pencil = 0,
   eraser
 }
-
 
 let currentTool = Tool.pencil
 function changeTool(type: Tool) {
   currentTool = type
 }
 function initTools() {
-  const pencil = initPencil(currentCtx)
-  const eraser = initEraser(currentCtx)
+  const pencil = usePencil(currentCtx)
+  const eraser = useEraser(currentCtx)
   const getCurrentToolEvents: () => ToolEventsObject = () => {
     if (currentTool === Tool.pencil) {
       return pencil
@@ -123,11 +127,47 @@ function initTools() {
   canvasContainerRef.value!.onmouseup = onMouseup
   canvasContainerRef.value!.onmouseleave = onMouseleave
 }
-addLayer()
+
+function initPainter() {
+  addLayer()
+  initTools()
+}
+
+onMounted(() => {
+  initPainter()
+})
+
+
+const currentColor = ref('rgba(255, 69, 0, 0.68)')
+const predefineColors = ref([
+  '#ff4500',
+  '#ff8c00',
+  '#ffd700',
+  '#90ee90',
+  '#00ced1',
+  '#1e90ff',
+  '#c71585',
+  'rgb(255, 69, 0)',
+  'rgb(255, 120, 0)',
+  'hsv(51, 100, 98)',
+  'hsv(120, 40, 94)',
+  'hsl(181, 100%, 37%)',
+  'hsl(209, 100%, 56%)',
+  '#c7158577',
+])
+
+const currentLineWidth = ref(5)
+
 onMounted(() => {
   nextTick(() => {
-    initTools()
+    watch([currentCtx, currentColor, currentLineWidth], ([ctx, color, width]) => {
+      if (!ctx) return
+      ctx.strokeStyle = color
+      ctx.fillStyle = color
+      ctx.lineWidth = width
+    }, { immediate: true })
   })
+
 })
 
 

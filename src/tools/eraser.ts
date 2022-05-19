@@ -1,9 +1,9 @@
 
 import type { ComputedRef, Ref } from "vue"
 import type { ToolEventsObject } from "./type"
-export function initEraser(context: Ref<CanvasRenderingContext2D | null> | ComputedRef<CanvasRenderingContext2D | null>): ToolEventsObject {
-    let isClearing = false
 
+export function useEraser(context: Ref<CanvasRenderingContext2D | null> | ComputedRef<CanvasRenderingContext2D | null>): ToolEventsObject {
+    let isClearing = false
     const lastAxis = {
         x: 0,
         y: 0
