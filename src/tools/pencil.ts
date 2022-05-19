@@ -13,8 +13,10 @@ export function usePencil(context: Ref<CanvasRenderingContext2D | null> | Comput
         let startAngle = 0
         let endAngle = Math.PI * 2
         let anticlockwise = true
+        ctx.beginPath()
         ctx.moveTo(x, y)
         ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);
+        ctx.closePath()
         ctx.fill();
     }
 
@@ -24,9 +26,11 @@ export function usePencil(context: Ref<CanvasRenderingContext2D | null> | Comput
         ctx.lineWidth = width
         ctx.lineCap = "round"
         ctx.lineJoin = "round"
+        ctx.beginPath()
         ctx.moveTo(x1, y1)
         ctx.lineTo(x2, y2)
         ctx.stroke()
+        ctx.closePath()
         // ctx.restore()
     }
     const onMousedown = (e: MouseEvent) => {
@@ -37,10 +41,7 @@ export function usePencil(context: Ref<CanvasRenderingContext2D | null> | Comput
         lastAxis.x = sx
         lastAxis.y = sy
         if (isPainting) {
-            context.value!.beginPath()
             drawCircle(context.value!, sx, sy, context.value!.lineWidth / 2)
-            context.value!.closePath()
-            context.value!.beginPath()
         }
     }
     const onMousemove = (e: MouseEvent) => {

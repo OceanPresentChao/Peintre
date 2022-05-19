@@ -10,6 +10,7 @@ usePenciluseEraser<template>
         <el-button type="primary" size="default" @click="addLayer">Add Layer</el-button>
         <el-button type="primary" size="default" @click="changeTool(Tool.pencil)">Pencil</el-button>
         <el-button type="primary" size="default" @click="changeTool(Tool.eraser)">Eraser</el-button>
+        <el-button type="primary" size="default" @click="clearCtx">Clear</el-button>
       </div>
       <div>
         <el-color-picker v-model="currentColor" :predefine="predefineColors" />
@@ -25,9 +26,8 @@ usePenciluseEraser<template>
         layers num:{{ canvasRefs.length }}
       </div>
       <div>
-        <el-button type="primary" size="default" text v-for="layer in layers" @click="changeLayer(layer.id)">{{ layer }}
+        <el-button type="danger" size="default" text v-for="layer in layers" @click="changeLayer(layer.id)">{{ layer }}
         </el-button>
-
       </div>
     </div>
   </div>
@@ -55,7 +55,7 @@ interface Layer extends Object {
 interface LayerContainer {
   [layerid: string]: Layer
 }
-
+// const layers:Ref<LayerContainer> = useLocalStorage("canvasLayers", {})
 const layers = ref<LayerContainer>({})
 const canvasContainerRef = ref<HTMLDivElement | null>(null)
 const canvasRefs = ref<HTMLCanvasElement[]>([])
@@ -137,9 +137,12 @@ onMounted(() => {
   initPainter()
 })
 
+function clearCtx() {
+  currentCtx.value!.clearRect(0, 0, currentCtx.value!.canvas.width, currentCtx.value!.canvas.height)
+}
 
-const currentColor = ref('rgba(255, 69, 0, 0.68)')
-const predefineColors = ref([
+const currentColor = ref('rgba(255, 69, 0)')
+const predefineColors = [
   '#ff4500',
   '#ff8c00',
   '#ffd700',
@@ -147,14 +150,14 @@ const predefineColors = ref([
   '#00ced1',
   '#1e90ff',
   '#c71585',
-  'rgb(255, 69, 0)',
+  'rgba(255, 69, 0)',
   'rgb(255, 120, 0)',
   'hsv(51, 100, 98)',
   'hsv(120, 40, 94)',
   'hsl(181, 100%, 37%)',
   'hsl(209, 100%, 56%)',
   '#c7158577',
-])
+]
 
 const currentLineWidth = ref(5)
 
@@ -167,8 +170,9 @@ onMounted(() => {
       ctx.lineWidth = width
     }, { immediate: true })
   })
-
 })
+
+
 
 
 

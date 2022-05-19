@@ -12,7 +12,9 @@ export function useEraser(context: Ref<CanvasRenderingContext2D | null> | Comput
     const emptyEventFun = (e: MouseEvent) => { }
     const clearCircle = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) => {
         ctx.save()
+        ctx.beginPath()
         ctx.arc(x, y, radius, 0, Math.PI * 2)
+        ctx.closePath()
         ctx.clip()
         ctx.clearRect(x - radius, y - radius, radius * 2, radius * 2)
         ctx.restore()
@@ -23,8 +25,10 @@ export function useEraser(context: Ref<CanvasRenderingContext2D | null> | Comput
         ctx.lineCap = "round"
         ctx.lineJoin = "round"
         ctx.globalCompositeOperation = "destination-out"
+        ctx.beginPath()
         ctx.moveTo(x1, y1)
         ctx.lineTo(x2, y2)
+        ctx.closePath()
         ctx.stroke()
         ctx.restore()
     }
@@ -36,10 +40,7 @@ export function useEraser(context: Ref<CanvasRenderingContext2D | null> | Comput
         lastAxis.x = sx
         lastAxis.y = sy
         if (isClearing) {
-            context.value!.beginPath()
             clearCircle(context.value!, sx, sy, context.value!.lineWidth / 2)
-            context.value!.closePath()
-            context.value!.beginPath()
         }
     }
     const onMousemove = (e: MouseEvent) => {
