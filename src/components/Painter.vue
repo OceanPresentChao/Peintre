@@ -1,4 +1,4 @@
-usePenciluseEraser<template>
+<template>
   <div>
     <header>
       <!-- Header content -->
@@ -16,7 +16,9 @@ usePenciluseEraser<template>
         <el-color-picker v-model="currentColor" :predefine="predefineColors" />
         <el-slider v-model="currentLineWidth" show-input :min="1" :max="500" :step="1" />
       </div>
-      <div class="relative" ref="canvasContainerRef">
+      <div class="relative cursor-none" ref="canvasContainerRef">
+        <canvas :width="canvasConfig.width" :height="canvasConfig.height" ref="cursorRef"
+          class="absolute top-0"></canvas>
         <canvas v-for="layer in layers" :ref="setCanvasRef" class="absolute top-0" :width="canvasConfig.width"
           :height="canvasConfig.height"></canvas>
         <canvas :width="canvasConfig.width" :height="canvasConfig.height"></canvas>
@@ -36,7 +38,7 @@ usePenciluseEraser<template>
 <script setup lang="ts">
 import type { ComputedRef, Ref } from 'vue';
 import { nanoid } from "nanoid"
-import { useEraser, usePencil } from '@/tools';
+import { PencilDelay, useEraser, usePencil } from '@/tools';
 import type { ToolEventsObject } from '@/tools/type';
 const showCanvas = ref(true)
 function toggleCanvas() {
@@ -66,6 +68,8 @@ function setCanvasRef(el: any) {
   }
 }
 let currentLayer = ref<Layer | null>(null)
+const cursorRef = ref<HTMLCanvasElement | null>(null)
+
 let currentCtx: ComputedRef<CanvasRenderingContext2D | null> = computed(() => {
   // console.log("CTX change!");
   if (!currentLayer.value || !currentLayer.value.canvas) return null
@@ -122,15 +126,37 @@ function initTools() {
   const onMouseleave = (e: MouseEvent) => {
     getCurrentToolEvents().onMouseleave(e)
   }
-  canvasContainerRef.value!.onmousedown = onMousedown
-  canvasContainerRef.value!.onmousemove = onMousemove
-  canvasContainerRef.value!.onmouseup = onMouseup
-  canvasContainerRef.value!.onmouseleave = onMouseleave
+  canvasContainerRef.value!.addEventListener("mousedown", onMousedown)
+  canvasContainerRef.value!.addEventListener("mousemove", onMousemove)
+  canvasContainerRef.value!.addEventListener("mouseup", onMouseup)
+  canvasContainerRef.value!.addEventListener("mouseleave", onMouseleave)
+}
+
+function initCursor() {
+  const ctx = cursorRef.value!.getContext("2d")
+  if (!ctx) return
+  const onMousemove = (e: MouseEvent) => {
+    const mx = e.offsetX - ctx.canvas!.offsetLeft;
+    const my = e.offsetY - ctx.canvas!.offsetTop;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    ctx.beginPath()
+    ctx.strokeStyle = "#000"
+    ctx.lineWidth = 0.5
+    ctx.arc(mx, my, currentLineWidth.value / 2, 0, Math.PI * 2)
+    ctx.stroke()
+    ctx.closePath()
+  }
+  const onMouseleave = (e: MouseEvent) => {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+  }
+  canvasContainerRef.value!.addEventListener("mousemove", useThrottleFn(onMousemove, PencilDelay))
+  canvasContainerRef.value!.addEventListener("mouseleave", onMouseleave)
 }
 
 function initPainter() {
   addLayer()
   initTools()
+  initCursor()
 }
 
 onMounted(() => {

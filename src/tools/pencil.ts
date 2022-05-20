@@ -1,6 +1,6 @@
 import type { ComputedRef, Ref } from "vue"
 import type { ToolEventsObject } from "./type"
-
+export const PencilDelay = 10
 export function usePencil(context: Ref<CanvasRenderingContext2D | null> | ComputedRef<CanvasRenderingContext2D | null>): ToolEventsObject {
     let isPainting = false
     const lastAxis = {
@@ -61,8 +61,8 @@ export function usePencil(context: Ref<CanvasRenderingContext2D | null> | Comput
     }
     const onMouseleave = emptyEventFun
     return {
-        onMousedown: useThrottleFn(onMousedown, 10),
-        onMousemove: useThrottleFn(onMousemove, 10),
+        onMousedown: useThrottleFn(onMousedown, PencilDelay),
+        onMousemove: useThrottleFn(onMousemove, PencilDelay),
         onMouseup,
         onMouseleave
     }
