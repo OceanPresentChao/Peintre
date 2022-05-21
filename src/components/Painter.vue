@@ -10,7 +10,9 @@
         <el-button type="primary" size="default" @click="addLayer">Add Layer</el-button>
         <el-button type="primary" size="default" @click="changeTool(Tool.pencil)">Pencil</el-button>
         <el-button type="primary" size="default" @click="changeTool(Tool.eraser)">Eraser</el-button>
-        <el-button type="primary" size="default" @click="clearCtx">Clear</el-button>
+        <el-button type="primary" size="default" @click="clearCtx(currentCtx)">Clear</el-button>
+        <el-button type="primary" size="default" @click="goPrevious" :disabled="layeridStack.length <= 0">Previous
+        </el-button>
       </div>
       <div>
         <el-color-picker v-model="currentColor" :predefine="predefineColors" />
@@ -29,7 +31,8 @@
         layers num:{{ canvasRefs.length }}
       </div>
       <div>
-        <el-button type="danger" size="default" text v-for="layer in layers" @click="changeLayer(layer.id)">{{ layer }}
+        <el-button type="danger" size="default" text v-for="layer in layers" @click="changeLayer(layer.id)">
+          {{ layer.imageStack }}
         </el-button>
       </div>
     </div>
@@ -50,6 +53,8 @@ function toggleCanvas() {
 interface Layer extends Object {
   id: string
   canvas: HTMLCanvasElement | null
+  context: CanvasRenderingContext2D | null
+  imageStack: Array<ImageData>
 }
 interface LayerContainer {
   [layerid: string]: Layer
@@ -69,19 +74,18 @@ const cursorRef = ref<HTMLCanvasElement | null>(null)
 let currentLayer = ref<Layer | null>(null)
 
 let currentCtx: ComputedRef<CanvasRenderingContext2D | null> = computed(() => {
-  // console.log("CTX change!");
   if (!currentLayer.value || !currentLayer.value.canvas) return null
   const ctx = currentLayer.value.canvas.getContext('2d')
-  // if (ctx) ctx.globalCompositeOperation = 'destination-atop';
   return ctx
 })
 function addLayer() {
   if (!layers.value) return
   const id = nanoid()
-  const newlayer: Layer = { id: id, canvas: null }
+  const newlayer: Layer = { id: id, canvas: null, context: null, imageStack: [] }
   layers.value[id] = newlayer
   nextTick(() => {
     layers.value[id].canvas = canvasRefs.value[canvasRefs.value.length - 1]
+    layers.value[id].context = canvasRefs.value[canvasRefs.value.length - 1].getContext("2d")
     currentLayer.value = newlayer
     // console.log(layers);
   })
@@ -113,6 +117,8 @@ function initTools() {
   }
   const onMousedown = (e: MouseEvent) => {
     console.log(Tool[currentTool]);
+    layeridStack.value.push(currentLayer.value!.id)
+    pushImage(currentLayer.value!.id, getImageData(currentLayer.value!.canvas))
     getCurrentToolEvents().onMousedown(e)
   }
   const onMousemove = (e: MouseEvent) => {
@@ -176,8 +182,15 @@ onMounted(() => {
   initPainter()
 })
 
-function clearCtx() {
-  currentCtx.value!.clearRect(0, 0, currentCtx.value!.canvas.width, currentCtx.value!.canvas.height)
+function clearCtx(context: CanvasRenderingContext2D | HTMLCanvasElement | null) {
+  if (!context) return
+  if (context instanceof CanvasRenderingContext2D) {
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height)
+  } else {
+    let ctx = context.getContext("2d")
+    if (!ctx) return null
+    return ctx.clearRect(0, 0, context.width, context.height)
+  }
 }
 
 const currentColor = ref('rgba(255, 69, 0)')
@@ -210,6 +223,51 @@ onMounted(() => {
     }, { immediate: true })
   })
 })
+
+const layeridStack = ref<Array<string>>([])
+const lastLayer = computed(() => {
+  return layeridStack.value.length > 0 ? layers.value[layeridStack.value[layeridStack.value.length - 1]] : null
+})
+
+function pushImage(layerid: string, data: ImageData | null) {
+  if (!data) {
+    return
+  }
+  layers.value[layerid].imageStack.push(data)
+}
+
+function drawImageData(context: CanvasRenderingContext2D | HTMLCanvasElement | null, data: ImageData | null) {
+  if (!context || !data) return
+  if (context instanceof CanvasRenderingContext2D) {
+    return context.putImageData(data, 0, 0)
+  } else {
+    let ctx = context.getContext("2d")
+    if (!ctx) return null
+    return ctx.putImageData(data, 0, 0)
+  }
+}
+
+function getImageData(context: CanvasRenderingContext2D | HTMLCanvasElement | null): ImageData | null {
+  if (!context) return null
+  if (context instanceof CanvasRenderingContext2D) {
+    return context.getImageData(0, 0, context.canvas.width, context.canvas.height)
+  } else {
+    let ctx = context.getContext("2d")
+    if (!ctx) return null
+    return ctx.getImageData(0, 0, context.width, context.height)
+  }
+
+}
+
+function goPrevious() {
+  if (!lastLayer.value) return
+  const imageStack = lastLayer.value.imageStack
+  if (imageStack.length > 0) {
+    const image = imageStack.pop()!
+    drawImageData(lastLayer.value.canvas, image)
+  }
+  layeridStack.value.pop()
+}
 
 </script>
 
