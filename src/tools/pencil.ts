@@ -1,6 +1,10 @@
 import type { ComputedRef, Ref } from "vue"
 import type { ToolEventsObject } from "./type"
-export const PencilDelay = 10
+export const PencilConfig = {
+    delay: 10,
+    maxWidth: 500,
+    minWidth: 1
+}
 export function usePencil(context: Ref<CanvasRenderingContext2D | null> | ComputedRef<CanvasRenderingContext2D | null>): ToolEventsObject {
     let isPainting = false
     const lastAxis = {
@@ -34,6 +38,7 @@ export function usePencil(context: Ref<CanvasRenderingContext2D | null> | Comput
         // ctx.restore()
     }
     const onMousedown = (e: MouseEvent) => {
+        if (e.button !== 0) return
         let sx, sy = 0
         isPainting = true
         sx = e.offsetX - context.value!.canvas!.offsetLeft;
@@ -45,6 +50,7 @@ export function usePencil(context: Ref<CanvasRenderingContext2D | null> | Comput
         }
     }
     const onMousemove = (e: MouseEvent) => {
+        if (e.button !== 0) return
         let mx, my = 0
         mx = e.offsetX - context.value!.canvas!.offsetLeft;
         my = e.offsetY - context.value!.canvas!.offsetTop;
@@ -61,8 +67,8 @@ export function usePencil(context: Ref<CanvasRenderingContext2D | null> | Comput
     }
     const onMouseleave = emptyEventFun
     return {
-        onMousedown: useThrottleFn(onMousedown, PencilDelay),
-        onMousemove: useThrottleFn(onMousemove, PencilDelay),
+        onMousedown: useThrottleFn(onMousedown, PencilConfig.delay),
+        onMousemove: useThrottleFn(onMousemove, PencilConfig.delay),
         onMouseup,
         onMouseleave
     }

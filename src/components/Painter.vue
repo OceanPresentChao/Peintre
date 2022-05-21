@@ -14,14 +14,15 @@
       </div>
       <div>
         <el-color-picker v-model="currentColor" :predefine="predefineColors" />
-        <el-slider v-model="currentLineWidth" show-input :min="1" :max="500" :step="1" />
+        <el-slider v-model="currentLineWidth" show-input :min="PencilConfig.minWidth" :max="PencilConfig.maxWidth"
+          :step="1" />
       </div>
       <div class="relative cursor-none" ref="canvasContainerRef">
-        <canvas :width="canvasConfig.width" :height="canvasConfig.height" ref="cursorRef"
+        <canvas :width="CanvasConfig.width" :height="CanvasConfig.height" ref="cursorRef"
           class="absolute top-0"></canvas>
-        <canvas v-for="layer in layers" :ref="setCanvasRef" class="absolute top-0" :width="canvasConfig.width"
-          :height="canvasConfig.height"></canvas>
-        <canvas :width="canvasConfig.width" :height="canvasConfig.height"></canvas>
+        <canvas v-for="layer in layers" :ref="setCanvasRef" class="absolute top-0" :width="CanvasConfig.width"
+          :height="CanvasConfig.height"></canvas>
+        <canvas :width="CanvasConfig.width" :height="CanvasConfig.height"></canvas>
       </div>
       <div>
         current layer id:{{ currentLayer?.id }}
@@ -38,16 +39,12 @@
 <script setup lang="ts">
 import type { ComputedRef, Ref } from 'vue';
 import { nanoid } from "nanoid"
-import { PencilDelay, useEraser, usePencil } from '@/tools';
+import { PencilConfig, useEraser, usePencil } from '@/tools';
 import type { ToolEventsObject } from '@/tools/type';
+import { CanvasConfig } from '@/utils/config';
 const showCanvas = ref(true)
 function toggleCanvas() {
   showCanvas.value = !showCanvas.value
-}
-const canvasConfig = {
-  width: 800,
-  height: 600,
-  top: 0
 }
 
 interface Layer extends Object {
@@ -67,8 +64,9 @@ function setCanvasRef(el: any) {
     canvasRefs.value.push(el as HTMLCanvasElement)
   }
 }
-let currentLayer = ref<Layer | null>(null)
 const cursorRef = ref<HTMLCanvasElement | null>(null)
+
+let currentLayer = ref<Layer | null>(null)
 
 let currentCtx: ComputedRef<CanvasRenderingContext2D | null> = computed(() => {
   // console.log("CTX change!");
@@ -149,14 +147,29 @@ function initCursor() {
   const onMouseleave = (e: MouseEvent) => {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
   }
-  canvasContainerRef.value!.addEventListener("mousemove", useThrottleFn(onMousemove, PencilDelay))
+  canvasContainerRef.value!.addEventListener("mousemove", useThrottleFn(onMousemove, PencilConfig.delay))
   canvasContainerRef.value!.addEventListener("mouseleave", onMouseleave)
+}
+
+function initScroll() {
+  const onWheel = (event: WheelEvent) => {
+    event.preventDefault()
+    if (event.deltaY >= 0 && currentLineWidth.value > PencilConfig.minWidth) {
+      currentLineWidth.value -= Math.abs(Math.round(event.deltaY / 100) * 5)
+    } else if (event.deltaY < 0 && currentLineWidth.value < PencilConfig.maxWidth) {
+      currentLineWidth.value += Math.abs(Math.round(event.deltaY / 100) * 5)
+    }
+    console.log(currentLineWidth.value);
+  }
+  canvasContainerRef.value!.addEventListener("wheel", onWheel)
+
 }
 
 function initPainter() {
   addLayer()
   initTools()
   initCursor()
+  initScroll()
 }
 
 onMounted(() => {
@@ -197,12 +210,6 @@ onMounted(() => {
     }, { immediate: true })
   })
 })
-
-
-
-
-
-
 
 </script>
 
