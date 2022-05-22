@@ -5,7 +5,7 @@ export const PencilConfig = {
     maxWidth: 500,
     minWidth: 1
 }
-export function usePencil(context: Ref<CanvasRenderingContext2D | null> | ComputedRef<CanvasRenderingContext2D | null>): ToolEventsObject {
+export function usePencil(context: Ref<CanvasRenderingContext2D | null> | ComputedRef<CanvasRenderingContext2D | null>, revert?: () => void): ToolEventsObject {
     let isPainting = false
     const lastAxis = {
         x: 0,

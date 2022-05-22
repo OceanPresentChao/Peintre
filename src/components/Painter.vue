@@ -8,14 +8,26 @@
       <!-- Main content -->
       <div>
         <el-button type="primary" size="default" @click="addLayer">Add Layer</el-button>
-        <el-button type="primary" size="default" @click="changeTool(Tool.pencil)">Pencil</el-button>
-        <el-button type="primary" size="default" @click="changeTool(Tool.eraser)">Eraser</el-button>
+        <el-button type="success" size="default" @click="changeTool(Tool.pencil)">Pencil</el-button>
+        <el-button type="success" size="default" @click="changeTool(Tool.eraser)">Eraser</el-button>
+        <el-button type="success" size="default" @click="changeTool(Tool.line)">Line</el-button>
+        <el-button type="success" size="default" @click="changeTool(Tool.rectangle)">
+          <span v-show="currentToolConfig.isRectFill">RectangleFilled</span>
+          <span v-show="!currentToolConfig.isRectFill">RectangleStroked</span>
+        </el-button>
+        <el-button type="success" size="default" @click="changeTool(Tool.ellipse)">
+          <span v-show="currentToolConfig.isEllipseFill">EllipseFillFilled</span>
+          <span v-show="!currentToolConfig.isEllipseFill">EllipseFillStroked</span>
+        </el-button>
         <el-button type="primary" size="default" @click="clearCtx(currentCtx)">Clear</el-button>
         <el-button type="primary" size="default" @click="goPrevious" :disabled="layeridStack.length <= 0">Previous
         </el-button>
       </div>
       <div>
-        <el-color-picker v-model="currentColor" :predefine="predefineColors" />
+        strokecolor：
+        <el-color-picker v-model="currentToolConfig.strokecolor" :predefine="predefineColors" />
+        fillcolor：
+        <el-color-picker v-model="currentToolConfig.fillcolor" :predefine="predefineColors" />
         <el-slider v-model="currentLineWidth" show-input :min="PencilConfig.minWidth" :max="PencilConfig.maxWidth"
           :step="1" />
       </div>
@@ -42,9 +54,11 @@
 <script setup lang="ts">
 import type { ComputedRef, Ref } from 'vue';
 import { nanoid } from "nanoid"
-import { PencilConfig, useEraser, usePencil } from '@/tools';
+import { PencilConfig, useEraser, useLine, usePencil } from '@/tools';
 import type { ToolEventsObject } from '@/tools/type';
 import { CanvasConfig } from '@/utils/config';
+import { useRectangle } from '@/tools/rectangle';
+import { useEllipse } from '@/tools/ellipse';
 const showCanvas = ref(true)
 function toggleCanvas() {
   showCanvas.value = !showCanvas.value
@@ -96,39 +110,76 @@ function changeLayer(layerid: string) {
 
 enum Tool {
   pencil = 0,
-  eraser
+  eraser,
+  line,
+  rectangle,
+  ellipse
 }
 
-let currentTool = Tool.pencil
+const currentToolConfig = ref<{
+  tool: Tool,
+  strokecolor: string,
+  fillcolor: string,
+  linewidth: number,
+  isRectFill: boolean,
+  isEllipseFill: boolean
+}>({
+  tool: Tool.pencil,
+  strokecolor: 'rgba(255, 69, 0)',
+  fillcolor: 'rgba(255, 69, 0)',
+  linewidth: 5,
+  isRectFill: false,
+  isEllipseFill: false
+})
+
 function changeTool(type: Tool) {
-  currentTool = type
+  currentToolConfig.value.tool = type
 }
 function initTools() {
-  const pencil = usePencil(currentCtx)
-  const eraser = useEraser(currentCtx)
-  const getCurrentToolEvents: () => ToolEventsObject = () => {
-    if (currentTool === Tool.pencil) {
+  const revert = () => {
+    if (!lastLayer.value) return
+    const imageStack = lastLayer.value.imageStack
+    if (imageStack.length > 0) {
+      const image = imageStack[imageStack.length - 1]!
+      drawImageData(lastLayer.value.canvas, image)
+    }
+  }
+  const pencil = usePencil(currentCtx, revert)
+  const eraser = useEraser(currentCtx, revert)
+  const line = useLine(currentCtx, revert)
+  const rectangle = useRectangle(currentCtx, revert)
+  const ellipse = useEllipse(currentCtx, revert)
+
+  // const circle = useLine(currentCtx, revert)
+  const getcurrentToolEvents: () => ToolEventsObject = () => {
+    if (currentToolConfig.value.tool === Tool.pencil) {
       return pencil
-    } else if (currentTool === Tool.eraser) {
+    } else if (currentToolConfig.value.tool === Tool.eraser) {
       return eraser
+    } else if (currentToolConfig.value.tool === Tool.line) {
+      return line
+    } else if (currentToolConfig.value.tool === Tool.rectangle) {
+      return rectangle
+    } else if (currentToolConfig.value.tool === Tool.ellipse) {
+      return ellipse
     } else {
       return pencil
     }
   }
   const onMousedown = (e: MouseEvent) => {
-    console.log(Tool[currentTool]);
+    console.log(Tool[currentToolConfig.value.tool]);
     layeridStack.value.push(currentLayer.value!.id)
     pushImage(currentLayer.value!.id, getImageData(currentLayer.value!.canvas))
-    getCurrentToolEvents().onMousedown(e)
+    getcurrentToolEvents().onMousedown(e)
   }
   const onMousemove = (e: MouseEvent) => {
-    getCurrentToolEvents().onMousemove(e)
+    getcurrentToolEvents().onMousemove(e)
   }
   const onMouseup = (e: MouseEvent) => {
-    getCurrentToolEvents().onMouseup(e)
+    getcurrentToolEvents().onMouseup(e)
   }
   const onMouseleave = (e: MouseEvent) => {
-    getCurrentToolEvents().onMouseleave(e)
+    getcurrentToolEvents().onMouseleave(e)
   }
   canvasContainerRef.value!.addEventListener("mousedown", onMousedown)
   canvasContainerRef.value!.addEventListener("mousemove", onMousemove)
@@ -184,16 +235,19 @@ onMounted(() => {
 
 function clearCtx(context: CanvasRenderingContext2D | HTMLCanvasElement | null) {
   if (!context) return
+  if (layeridStack.value.length > 0) {
+    layeridStack.value.push(currentLayer.value!.id)
+    pushImage(currentLayer.value!.id, getImageData(currentLayer.value!.canvas))
+  }
   if (context instanceof CanvasRenderingContext2D) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height)
   } else {
     let ctx = context.getContext("2d")
     if (!ctx) return null
-    return ctx.clearRect(0, 0, context.width, context.height)
+    ctx.clearRect(0, 0, context.width, context.height)
   }
 }
 
-const currentColor = ref('rgba(255, 69, 0)')
 const predefineColors = [
   '#ff4500',
   '#ff8c00',
@@ -202,7 +256,7 @@ const predefineColors = [
   '#00ced1',
   '#1e90ff',
   '#c71585',
-  'rgba(255, 69, 0)',
+  'rgb(255, 69, 0)',
   'rgb(255, 120, 0)',
   'hsv(51, 100, 98)',
   'hsv(120, 40, 94)',
@@ -215,12 +269,18 @@ const currentLineWidth = ref(5)
 
 onMounted(() => {
   nextTick(() => {
-    watch([currentCtx, currentColor, currentLineWidth], ([ctx, color, width]) => {
+    watch([currentCtx, currentToolConfig], ([ctx, config]) => {
       if (!ctx) return
-      ctx.strokeStyle = color
-      ctx.fillStyle = color
-      ctx.lineWidth = width
-    }, { immediate: true })
+      if (currentToolConfig.value.tool === Tool.pencil || currentToolConfig.value.tool === Tool.line) {
+        ctx.strokeStyle = config.strokecolor
+        ctx.fillStyle = config.strokecolor
+        ctx.lineWidth = config.linewidth
+      } else if (currentToolConfig.value.tool === Tool.eraser || currentToolConfig.value.tool === Tool.rectangle) {
+        ctx.strokeStyle = config.strokecolor
+        ctx.fillStyle = config.fillcolor
+        ctx.lineWidth = config.linewidth
+      }
+    }, { immediate: true, deep: true })
   })
 })
 
@@ -239,11 +299,11 @@ function pushImage(layerid: string, data: ImageData | null) {
 function drawImageData(context: CanvasRenderingContext2D | HTMLCanvasElement | null, data: ImageData | null) {
   if (!context || !data) return
   if (context instanceof CanvasRenderingContext2D) {
-    return context.putImageData(data, 0, 0)
+    context.putImageData(data, 0, 0)
   } else {
     let ctx = context.getContext("2d")
     if (!ctx) return null
-    return ctx.putImageData(data, 0, 0)
+    ctx.putImageData(data, 0, 0)
   }
 }
 

@@ -1,8 +1,9 @@
-
 import type { ComputedRef, Ref } from "vue"
 import type { ToolEventsObject } from "./type"
-
-export function useEraser(context: Ref<CanvasRenderingContext2D | null> | ComputedRef<CanvasRenderingContext2D | null>): ToolEventsObject {
+export const EraserConfig = {
+    delay: 10
+}
+export function useEraser(context: Ref<CanvasRenderingContext2D | null> | ComputedRef<CanvasRenderingContext2D | null>, revert?: () => void): ToolEventsObject {
     let isClearing = false
     const lastAxis = {
         x: 0,
@@ -57,10 +58,10 @@ export function useEraser(context: Ref<CanvasRenderingContext2D | null> | Comput
         isClearing = false
         context.value!.closePath()
     }
-    const onMouseleave = emptyEventFun
+    const onMouseleave = onMouseup
     return {
-        onMousedown: useThrottleFn(onMousedown, 10),
-        onMousemove: useThrottleFn(onMousemove, 10),
+        onMousedown: useThrottleFn(onMousedown, EraserConfig.delay),
+        onMousemove: useThrottleFn(onMousemove, EraserConfig.delay),
         onMouseup,
         onMouseleave
     }
