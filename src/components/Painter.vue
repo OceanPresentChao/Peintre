@@ -27,9 +27,9 @@
         strokecolor：
         <el-color-picker v-model="currentToolConfig.strokecolor" :predefine="predefineColors" />
         fillcolor：
-        <el-color-picker v-model="currentToolConfig.fillcolor" :predefine="predefineColors" />
-        <el-slider v-model="currentLineWidth" show-input :min="PencilConfig.minWidth" :max="PencilConfig.maxWidth"
-          :step="1" />
+        <el-color-picker show-alpha v-model="currentToolConfig.fillcolor" :predefine="predefineColors" />
+        <el-slider v-model="currentToolConfig.linewidth" show-input :min="PencilConfig.minWidth"
+          :max="PencilConfig.maxWidth" :step="1" />
       </div>
       <div class="relative cursor-none" ref="canvasContainerRef">
         <canvas :width="CanvasConfig.width" :height="CanvasConfig.height" ref="cursorRef"
@@ -197,7 +197,7 @@ function initCursor() {
     ctx.beginPath()
     ctx.strokeStyle = "#000"
     ctx.lineWidth = 0.5
-    ctx.arc(mx, my, currentLineWidth.value / 2, 0, Math.PI * 2)
+    ctx.arc(mx, my, currentToolConfig.value.linewidth / 2, 0, Math.PI * 2)
     ctx.stroke()
     ctx.closePath()
   }
@@ -211,12 +211,12 @@ function initCursor() {
 function initScroll() {
   const onWheel = (event: WheelEvent) => {
     event.preventDefault()
-    if (event.deltaY >= 0 && currentLineWidth.value > PencilConfig.minWidth) {
-      currentLineWidth.value -= Math.abs(Math.round(event.deltaY / 100) * 5)
-    } else if (event.deltaY < 0 && currentLineWidth.value < PencilConfig.maxWidth) {
-      currentLineWidth.value += Math.abs(Math.round(event.deltaY / 100) * 5)
+    if (event.deltaY >= 0 && currentToolConfig.value.linewidth > PencilConfig.minWidth) {
+      currentToolConfig.value.linewidth -= Math.abs(Math.round(event.deltaY / 100) * 5)
+    } else if (event.deltaY < 0 && currentToolConfig.value.linewidth < PencilConfig.maxWidth) {
+      currentToolConfig.value.linewidth += Math.abs(Math.round(event.deltaY / 100) * 5)
     }
-    console.log(currentLineWidth.value);
+    console.log(currentToolConfig.value.linewidth);
   }
   canvasContainerRef.value!.addEventListener("wheel", onWheel)
 
@@ -265,17 +265,16 @@ const predefineColors = [
   '#c7158577',
 ]
 
-const currentLineWidth = ref(5)
 
 onMounted(() => {
   nextTick(() => {
     watch([currentCtx, currentToolConfig], ([ctx, config]) => {
       if (!ctx) return
-      if (currentToolConfig.value.tool === Tool.pencil || currentToolConfig.value.tool === Tool.line) {
+      if (currentToolConfig.value.tool === Tool.pencil || currentToolConfig.value.tool === Tool.eraser || currentToolConfig.value.tool === Tool.line) {
         ctx.strokeStyle = config.strokecolor
         ctx.fillStyle = config.strokecolor
         ctx.lineWidth = config.linewidth
-      } else if (currentToolConfig.value.tool === Tool.eraser || currentToolConfig.value.tool === Tool.rectangle) {
+      } else if (currentToolConfig.value.tool === Tool.rectangle) {
         ctx.strokeStyle = config.strokecolor
         ctx.fillStyle = config.fillcolor
         ctx.lineWidth = config.linewidth
