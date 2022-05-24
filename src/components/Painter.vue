@@ -70,11 +70,9 @@ interface Layer extends Object {
   context: CanvasRenderingContext2D | null
   imageStack: Array<ImageData>
 }
-interface LayerContainer {
-  [layerid: string]: Layer
-}
+
 // const layers:Ref<LayerContainer> = useLocalStorage("canvasLayers", {})
-const layers = ref<LayerContainer>({})
+const layers = ref<Array<Layer>>([])
 const canvasContainerRef = ref<HTMLDivElement | null>(null)
 const canvasRefs = ref<HTMLCanvasElement[]>([])
 function setCanvasRef(el: any) {
@@ -84,28 +82,37 @@ function setCanvasRef(el: any) {
   }
 }
 const cursorRef = ref<HTMLCanvasElement | null>(null)
-
 let currentLayer = ref<Layer | null>(null)
-
 let currentCtx: ComputedRef<CanvasRenderingContext2D | null> = computed(() => {
   if (!currentLayer.value || !currentLayer.value.canvas) return null
   const ctx = currentLayer.value.canvas.getContext('2d')
   return ctx
 })
+
+function findLayer(layerid: string): Layer | null {
+  for (const layer of layers.value) {
+    if (layer.id === layerid) {
+      return layer
+    }
+  }
+  return null
+}
 function addLayer() {
   if (!layers.value) return
   const id = nanoid()
   const newlayer: Layer = { id: id, canvas: null, context: null, imageStack: [] }
-  layers.value[id] = newlayer
+  layers.value.push(newlayer)
   nextTick(() => {
-    layers.value[id].canvas = canvasRefs.value[canvasRefs.value.length - 1]
-    layers.value[id].context = canvasRefs.value[canvasRefs.value.length - 1].getContext("2d")
+    newlayer.canvas = canvasRefs.value[canvasRefs.value.length - 1]
+    newlayer.context = canvasRefs.value[canvasRefs.value.length - 1].getContext("2d")
     currentLayer.value = newlayer
     // console.log(layers);
   })
 }
 function changeLayer(layerid: string) {
-  currentLayer.value = layers.value[layerid]
+  const layer = findLayer(layerid)
+  if (!layer) return
+  currentLayer.value = layer
 }
 
 enum Tool {
@@ -285,14 +292,23 @@ onMounted(() => {
 
 const layeridStack = ref<Array<string>>([])
 const lastLayer = computed(() => {
-  return layeridStack.value.length > 0 ? layers.value[layeridStack.value[layeridStack.value.length - 1]] : null
+  if (layeridStack.value.length > 0) {
+    const lastid = layeridStack.value[layeridStack.value.length - 1]
+    const layer = findLayer(lastid)
+    if (!layer) return null
+    return layer
+  } else {
+    return null
+  }
 })
 
 function pushImage(layerid: string, data: ImageData | null) {
   if (!data) {
     return
   }
-  layers.value[layerid].imageStack.push(data)
+  const layer = findLayer(layerid)
+  if (!layer) return
+  layer.imageStack.push(data)
 }
 
 function drawImageData(context: CanvasRenderingContext2D | HTMLCanvasElement | null, data: ImageData | null) {

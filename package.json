@@ -37,6 +37,7 @@
     "vite": "^2.8.4",
     "vite-plugin-style-import": "^2.0.0",
     "vue-router": "^4.0.15",
-    "vue-tsc": "^0.31.4"
+    "vue-tsc": "^0.31.4",
+    "vuedraggable": "^4.1.0"
   }
 }

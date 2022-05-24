@@ -19,6 +19,7 @@ specifiers:
   vue: ^3.2.31
   vue-router: ^4.0.15
   vue-tsc: ^0.31.4
+  vuedraggable: ^4.1.0
 
 dependencies:
   '@vueuse/core': mirrors.tencent.com/@vueuse/core/8.4.0_vue@3.2.33
@@ -41,6 +42,7 @@ devDependencies:
   vite-plugin-style-import: 2.0.0_vite@2.9.7
   vue-router: 4.0.15_vue@3.2.33
   vue-tsc: mirrors.tencent.com/vue-tsc/0.31.4_typescript@4.5.5
+  vuedraggable: mirrors.tencent.com/vuedraggable/4.1.0_vue@3.2.33
 
 packages:
 
@@ -1990,6 +1992,12 @@ packages:
       lru-cache: mirrors.tencent.com/lru-cache/6.0.0
     dev: true
 
+  mirrors.tencent.com/sortablejs/1.14.0:
+    resolution: {integrity: sha512-pBXvQCs5/33fdN1/39pPL0NZF20LeRbLQ5jtnheIPN9JQAaufGjKdWduZn4U7wCtVuzKhmRkI0DFYHYRbB2H1w==, registry: http://mirrors.cloud.tencent.com/npm/, tarball: https://mirrors.tencent.com/npm/sortablejs/-/sortablejs-1.14.0.tgz}
+    name: sortablejs
+    version: 1.14.0
+    dev: true
+
   mirrors.tencent.com/source-map-js/1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==, registry: http://mirrors.cloud.tencent.com/npm/, tarball: https://mirrors.tencent.com/npm/source-map-js/-/source-map-js-1.0.2.tgz}
     name: source-map-js
@@ -2199,6 +2207,18 @@ packages:
       '@vue/server-renderer': 3.2.33_vue@3.2.33
       '@vue/shared': 3.2.33
     dev: false
+
+  mirrors.tencent.com/vuedraggable/4.1.0_vue@3.2.33:
+    resolution: {integrity: sha512-FU5HCWBmsf20GpP3eudURW3WdWTKIbEIQxh9/8GE806hydR9qZqRRxRE3RjqX7PkuLuMQG/A7n3cfj9rCEchww==, registry: http://mirrors.cloud.tencent.com/npm/, tarball: https://mirrors.tencent.com/npm/vuedraggable/-/vuedraggable-4.1.0.tgz}
+    id: mirrors.tencent.com/vuedraggable/4.1.0
+    name: vuedraggable
+    version: 4.1.0
+    peerDependencies:
+      vue: ^3.0.1
+    dependencies:
+      sortablejs: mirrors.tencent.com/sortablejs/1.14.0
+      vue: mirrors.tencent.com/vue/3.2.33
+    dev: true
 
   mirrors.tencent.com/webpack-virtual-modules/0.4.3:
     resolution: {integrity: sha512-5NUqC2JquIL2pBAAo/VfBP6KuGkHIZQXW/lNKupLPfhViwh8wNsu0BObtl09yuKZszeEUfbXz8xhrHvSG16Nqw==, registry: http://mirrors.cloud.tencent.com/npm/, tarball: http://mirrors.tencent.com/npm/webpack-virtual-modules/-/webpack-virtual-modules-0.4.3.tgz}
