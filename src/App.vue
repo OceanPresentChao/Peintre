@@ -4,7 +4,7 @@
 
 <template>
   <main>
-    <Painter />
+    <Painter :max-width="500" :min-width="2" />
   </main>
 </template>
 

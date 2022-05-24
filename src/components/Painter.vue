@@ -19,6 +19,7 @@
       <el-button type="primary" size="default" @click="clearCtx(currentCtx)">Clear</el-button>
       <el-button type="primary" size="default" @click="goPrevious" :disabled="layeridStack.length <= 0">Previous
       </el-button>
+      <el-button type="primary" size="default" @click="saveImage">Save Image</el-button>
     </div>
     <div>
       <span :style="{ color: currentToolConfig.strokecolor }">
@@ -29,14 +30,13 @@
         fillcolor：
         <el-color-picker show-alpha v-model="currentToolConfig.fillcolor" :predefine="predefineColors" />
       </span>
-      <el-slider v-model="currentToolConfig.maxwidth" show-input :min="PencilConfig.minWidth"
-        :max="PencilConfig.maxWidth" :step="1" />
+      <el-slider v-model="currentToolConfig.maxwidth" show-input :min="minWidth" :max="maxWidth" :step="1" />
     </div>
     <div class="relative cursor-none" ref="canvasContainerRef" id="canvasContainer">
       <canvas :width="CanvasConfig.width" :height="CanvasConfig.height" ref="cursorRef" class="absolute top-0"></canvas>
       <canvas v-for="layer in layers" :ref="setCanvasRef" :key="layer.id" class="absolute top-0"
         :width="CanvasConfig.width" :height="CanvasConfig.height"></canvas>
-      <canvas :width="CanvasConfig.width" :height="CanvasConfig.height"></canvas>
+      <canvas :width="CanvasConfig.width" :height="CanvasConfig.height" ref="imageRef"></canvas>
     </div>
     <div>
       current layer id:{{ currentLayer?.id }}
@@ -67,6 +67,27 @@ import { useEllipse } from '@/tools/ellipse';
 import draggable from 'vuedraggable';
 import * as Pressure from 'pressure';
 
+const props = defineProps({
+  maxWidth: {
+    type: Number,
+    default: 500,
+    validate(value: number) {
+      return value > 0
+    }
+  },
+  minWidth: {
+    type: Number,
+    default: 1,
+    validate(value: number) {
+      return value > 0
+    }
+  },
+  pressure: {
+    type: Boolean,
+    default: false
+  }
+})
+
 interface Layer extends Object {
   id: string
   canvas: HTMLCanvasElement | null
@@ -86,6 +107,7 @@ function setCanvasRef(el: any) {
   }
 }
 const cursorRef = ref<HTMLCanvasElement | null>(null)
+const imageRef = ref<HTMLCanvasElement | null>(null)
 let currentLayer = ref<Layer | null>(null)
 let currentCtx: ComputedRef<CanvasRenderingContext2D | null> = computed(() => {
   if (!currentLayer.value || !currentLayer.value.canvas) return null
@@ -232,12 +254,11 @@ function initCursor() {
 function initScroll() {
   const onWheel = (event: WheelEvent) => {
     event.preventDefault()
-    if (event.deltaY >= 0 && currentToolConfig.value.maxwidth > PencilConfig.minWidth) {
+    if (event.deltaY >= 0 && currentToolConfig.value.maxwidth > props.minWidth) {
       currentToolConfig.value.maxwidth -= Math.abs(Math.round(event.deltaY / 100) * 5)
-    } else if (event.deltaY < 0 && currentToolConfig.value.maxwidth < PencilConfig.maxWidth) {
+    } else if (event.deltaY < 0 && currentToolConfig.value.maxwidth < props.maxWidth) {
       currentToolConfig.value.maxwidth += Math.abs(Math.round(event.deltaY / 100) * 5)
     }
-    console.log(currentToolConfig.value.maxwidth);
   }
   canvasContainerRef.value!.addEventListener("wheel", onWheel)
 
@@ -252,11 +273,13 @@ function initPainter() {
 
 onMounted(() => {
   initPainter()
-  Pressure.set("#canvasContainer", {
-    change: function (force: any) {
-      currentToolConfig.value.linewidth = Math.round(force * currentToolConfig.value.maxwidth)
-    }
-  })
+  if (props.pressure) {
+    Pressure.set("#canvasContainer", {
+      change: function (force: any) {
+        currentToolConfig.value.linewidth = Math.round(force * currentToolConfig.value.maxwidth)
+      }
+    })
+  }
 })
 
 function clearCtx(context: CanvasRenderingContext2D | HTMLCanvasElement | null) {
@@ -296,6 +319,9 @@ onMounted(() => {
   nextTick(() => {
     watch([currentCtx, currentToolConfig], ([ctx, config]) => {
       if (!ctx) return
+      if (!props.pressure) {
+        config.linewidth = config.maxwidth
+      }
       if (currentToolConfig.value.tool === Tool.pencil || currentToolConfig.value.tool === Tool.eraser || currentToolConfig.value.tool === Tool.line) {
         ctx.strokeStyle = config.strokecolor
         ctx.fillStyle = config.strokecolor
@@ -363,6 +389,22 @@ function goPrevious() {
   layeridStack.value.pop()
 }
 
+function saveImage() {
+  let ctx = imageRef.value!.getContext('2d')
+  if (ctx) {
+    layers.value.forEach((layer) => {
+      // const pic = layer.context!.getImageData(0, 0, layer.canvas!.width, layer.canvas!.height)
+      // if (pic) {
+      //   ctx!.putImageData(pic, 0, 0)
+      // }
+      ctx!.drawImage(layer.canvas!, 0, 0)
+    })
+    const image = document.createElement("a")
+    image.download = "picture.png"
+    image.href = imageRef.value!.toDataURL() || ""
+    image.click()
+  }
+}
 
 
 </script>
