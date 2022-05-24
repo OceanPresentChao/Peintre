@@ -34,8 +34,8 @@
       <div class="relative cursor-none" ref="canvasContainerRef">
         <canvas :width="CanvasConfig.width" :height="CanvasConfig.height" ref="cursorRef"
           class="absolute top-0"></canvas>
-        <canvas v-for="layer in layers" :ref="setCanvasRef" class="absolute top-0" :width="CanvasConfig.width"
-          :height="CanvasConfig.height"></canvas>
+        <canvas v-for="layer in layers" :ref="setCanvasRef" :key="layer.id" class="absolute top-0"
+          :width="CanvasConfig.width" :height="CanvasConfig.height"></canvas>
         <canvas :width="CanvasConfig.width" :height="CanvasConfig.height"></canvas>
       </div>
       <div>
@@ -43,9 +43,15 @@
         layers num:{{ canvasRefs.length }}
       </div>
       <div>
-        <el-button type="danger" size="default" text v-for="layer in layers" @click="changeLayer(layer.id)">
-          {{ layer.imageStack }}
-        </el-button>
+        <draggable v-model="layers" item-key="id" ghost-class="ghost" @start="isDragging = true"
+          @end="isDragging = false">
+          <template #item="{ element }">
+            <el-button type="danger" size="default" text @click="changeLayer(element.id)">
+              {{ element.imageStack }}
+            </el-button>
+          </template>
+        </draggable>
+
       </div>
     </div>
   </div>
@@ -59,6 +65,7 @@ import type { ToolEventsObject } from '@/tools/type';
 import { CanvasConfig } from '@/utils/config';
 import { useRectangle } from '@/tools/rectangle';
 import { useEllipse } from '@/tools/ellipse';
+import draggable from 'vuedraggable';
 const showCanvas = ref(true)
 function toggleCanvas() {
   showCanvas.value = !showCanvas.value
@@ -71,6 +78,7 @@ interface Layer extends Object {
   imageStack: Array<ImageData>
 }
 
+const isDragging = ref(false)
 // const layers:Ref<LayerContainer> = useLocalStorage("canvasLayers", {})
 const layers = ref<Array<Layer>>([])
 const canvasContainerRef = ref<HTMLDivElement | null>(null)
@@ -347,4 +355,8 @@ function goPrevious() {
 </script>
 
 <style scoped>
+.ghost {
+  opacity: 0.5;
+  background: #c8ebfb;
+}
 </style>
