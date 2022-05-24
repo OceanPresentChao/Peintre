@@ -1,60 +1,59 @@
 <template>
   <div>
-    <header>
-      <!-- Header content -->
-      <el-button type="primary" size="default" @click="toggleCanvas">Show Canvas</el-button>
-    </header>
-    <div v-show="showCanvas">
-      <!-- Main content -->
-      <div>
-        <el-button type="primary" size="default" @click="addLayer">Add Layer</el-button>
-        <el-button type="success" size="default" @click="changeTool(Tool.pencil)">Pencil</el-button>
-        <el-button type="success" size="default" @click="changeTool(Tool.eraser)">Eraser</el-button>
-        <el-button type="success" size="default" @click="changeTool(Tool.line)">Line</el-button>
-        <el-button type="success" size="default" @click="changeTool(Tool.rectangle)">
-          <span v-show="currentToolConfig.isRectFill">RectangleFilled</span>
-          <span v-show="!currentToolConfig.isRectFill">RectangleStroked</span>
-        </el-button>
-        <el-button type="success" size="default" @click="changeTool(Tool.ellipse)">
-          <span v-show="currentToolConfig.isEllipseFill">EllipseFillFilled</span>
-          <span v-show="!currentToolConfig.isEllipseFill">EllipseFillStroked</span>
-        </el-button>
-        <el-button type="primary" size="default" @click="clearCtx(currentCtx)">Clear</el-button>
-        <el-button type="primary" size="default" @click="goPrevious" :disabled="layeridStack.length <= 0">Previous
-        </el-button>
-      </div>
-      <div>
+    <!-- Main content -->
+    <div>
+      <el-button type="warning" size="default" @click="addLayer">Add Layer</el-button>
+      <el-button type="warning" size="default" @click="deleteLayer" :disabled="layers.length <= 1">Delete Layer
+      </el-button>
+      <el-button type="success" size="default" @click="changeTool(Tool.pencil)">Pencil</el-button>
+      <el-button type="success" size="default" @click="changeTool(Tool.eraser)">Eraser</el-button>
+      <el-button type="success" size="default" @click="changeTool(Tool.line)">Line</el-button>
+      <el-button type="success" size="default" @click="changeTool(Tool.rectangle)">
+        <span v-show="currentToolConfig.isRectFill">RectangleFilled</span>
+        <span v-show="!currentToolConfig.isRectFill">RectangleStroked</span>
+      </el-button>
+      <el-button type="success" size="default" @click="changeTool(Tool.ellipse)">
+        <span v-show="currentToolConfig.isEllipseFill">EllipseFillFilled</span>
+        <span v-show="!currentToolConfig.isEllipseFill">EllipseFillStroked</span>
+      </el-button>
+      <el-button type="primary" size="default" @click="clearCtx(currentCtx)">Clear</el-button>
+      <el-button type="primary" size="default" @click="goPrevious" :disabled="layeridStack.length <= 0">Previous
+      </el-button>
+    </div>
+    <div>
+      <span :style="{ color: currentToolConfig.strokecolor }">
         strokecolor：
         <el-color-picker v-model="currentToolConfig.strokecolor" :predefine="predefineColors" />
+      </span>
+      <span :style="{ color: currentToolConfig.fillcolor }">
         fillcolor：
         <el-color-picker show-alpha v-model="currentToolConfig.fillcolor" :predefine="predefineColors" />
-        <el-slider v-model="currentToolConfig.linewidth" show-input :min="PencilConfig.minWidth"
-          :max="PencilConfig.maxWidth" :step="1" />
-      </div>
-      <div class="relative cursor-none" ref="canvasContainerRef">
-        <canvas :width="CanvasConfig.width" :height="CanvasConfig.height" ref="cursorRef"
-          class="absolute top-0"></canvas>
-        <canvas v-for="layer in layers" :ref="setCanvasRef" :key="layer.id" class="absolute top-0"
-          :width="CanvasConfig.width" :height="CanvasConfig.height"></canvas>
-        <canvas :width="CanvasConfig.width" :height="CanvasConfig.height"></canvas>
-      </div>
-      <div>
-        current layer id:{{ currentLayer?.id }}
-        layers num:{{ canvasRefs.length }}
-      </div>
-      <div>
-        <draggable v-model="layers" item-key="id" ghost-class="ghost" @start="isDragging = true"
-          @end="isDragging = false">
-          <template #item="{ element }">
-            <el-button type="danger" size="default" text @click="changeLayer(element.id)">
-              {{ element.imageStack }}
-            </el-button>
-          </template>
-        </draggable>
-
-      </div>
+      </span>
+      <el-slider v-model="currentToolConfig.maxwidth" show-input :min="PencilConfig.minWidth"
+        :max="PencilConfig.maxWidth" :step="1" />
+    </div>
+    <div class="relative cursor-none" ref="canvasContainerRef" id="canvasContainer">
+      <canvas :width="CanvasConfig.width" :height="CanvasConfig.height" ref="cursorRef" class="absolute top-0"></canvas>
+      <canvas v-for="layer in layers" :ref="setCanvasRef" :key="layer.id" class="absolute top-0"
+        :width="CanvasConfig.width" :height="CanvasConfig.height"></canvas>
+      <canvas :width="CanvasConfig.width" :height="CanvasConfig.height"></canvas>
+    </div>
+    <div>
+      current layer id:{{ currentLayer?.id }}
+      layers num:{{ canvasRefs.length }}
+    </div>
+    <div>
+      <draggable v-model="layers" item-key="id" ghost-class="ghost" @start="isDragging = true"
+        @end="isDragging = false">
+        <template #item="{ element }">
+          <el-button type="danger" size="default" text @click="changeLayer(element.id)">
+            {{ element.id }}
+          </el-button>
+        </template>
+      </draggable>
     </div>
   </div>
+
 </template>
 
 <script setup lang="ts">
@@ -66,10 +65,7 @@ import { CanvasConfig } from '@/utils/config';
 import { useRectangle } from '@/tools/rectangle';
 import { useEllipse } from '@/tools/ellipse';
 import draggable from 'vuedraggable';
-const showCanvas = ref(true)
-function toggleCanvas() {
-  showCanvas.value = !showCanvas.value
-}
+import * as Pressure from 'pressure';
 
 interface Layer extends Object {
   id: string
@@ -117,6 +113,14 @@ function addLayer() {
     // console.log(layers);
   })
 }
+function deleteLayer() {
+  if (!layers.value) return
+  const index = layers.value.findIndex((val) => val.id === currentLayer.value?.id)
+  if (index >= 0) {
+    layers.value.splice(index, 1)
+    changeLayer(layers.value[layers.value.length - 1].id)
+  }
+}
 function changeLayer(layerid: string) {
   const layer = findLayer(layerid)
   if (!layer) return
@@ -136,6 +140,7 @@ const currentToolConfig = ref<{
   strokecolor: string,
   fillcolor: string,
   linewidth: number,
+  maxwidth: number,
   isRectFill: boolean,
   isEllipseFill: boolean
 }>({
@@ -143,6 +148,7 @@ const currentToolConfig = ref<{
   strokecolor: 'rgba(255, 69, 0)',
   fillcolor: 'rgba(255, 69, 0)',
   linewidth: 5,
+  maxwidth: 5,
   isRectFill: false,
   isEllipseFill: false
 })
@@ -212,7 +218,7 @@ function initCursor() {
     ctx.beginPath()
     ctx.strokeStyle = "#000"
     ctx.lineWidth = 0.5
-    ctx.arc(mx, my, currentToolConfig.value.linewidth / 2, 0, Math.PI * 2)
+    ctx.arc(mx, my, currentToolConfig.value.maxwidth / 2, 0, Math.PI * 2)
     ctx.stroke()
     ctx.closePath()
   }
@@ -226,12 +232,12 @@ function initCursor() {
 function initScroll() {
   const onWheel = (event: WheelEvent) => {
     event.preventDefault()
-    if (event.deltaY >= 0 && currentToolConfig.value.linewidth > PencilConfig.minWidth) {
-      currentToolConfig.value.linewidth -= Math.abs(Math.round(event.deltaY / 100) * 5)
-    } else if (event.deltaY < 0 && currentToolConfig.value.linewidth < PencilConfig.maxWidth) {
-      currentToolConfig.value.linewidth += Math.abs(Math.round(event.deltaY / 100) * 5)
+    if (event.deltaY >= 0 && currentToolConfig.value.maxwidth > PencilConfig.minWidth) {
+      currentToolConfig.value.maxwidth -= Math.abs(Math.round(event.deltaY / 100) * 5)
+    } else if (event.deltaY < 0 && currentToolConfig.value.maxwidth < PencilConfig.maxWidth) {
+      currentToolConfig.value.maxwidth += Math.abs(Math.round(event.deltaY / 100) * 5)
     }
-    console.log(currentToolConfig.value.linewidth);
+    console.log(currentToolConfig.value.maxwidth);
   }
   canvasContainerRef.value!.addEventListener("wheel", onWheel)
 
@@ -246,6 +252,11 @@ function initPainter() {
 
 onMounted(() => {
   initPainter()
+  Pressure.set("#canvasContainer", {
+    change: function (force: any) {
+      currentToolConfig.value.linewidth = Math.round(force * currentToolConfig.value.maxwidth)
+    }
+  })
 })
 
 function clearCtx(context: CanvasRenderingContext2D | HTMLCanvasElement | null) {
@@ -351,6 +362,8 @@ function goPrevious() {
   }
   layeridStack.value.pop()
 }
+
+
 
 </script>
 

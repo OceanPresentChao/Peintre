@@ -10,6 +10,7 @@ specifiers:
   element-plus: ^2.2.0
   nanoid: ^3.3.4
   postcss: ^8.4.13
+  pressure: ^2.2.0
   tailwindcss: ^3.0.24
   typescript: ~4.5.5
   unplugin-auto-import: ^0.6.9
@@ -23,6 +24,7 @@ specifiers:
 
 dependencies:
   '@vueuse/core': mirrors.tencent.com/@vueuse/core/8.4.0_vue@3.2.33
+  pressure: 2.2.0
   vue: mirrors.tencent.com/vue/3.2.33
 
 devDependencies:
@@ -176,14 +178,12 @@ packages:
       '@vue/shared': mirrors.tencent.com/@vue/shared/3.2.33
       estree-walker: mirrors.tencent.com/estree-walker/2.0.2
       source-map: mirrors.tencent.com/source-map/0.6.1
-    dev: false
 
   /@vue/compiler-dom/3.2.33:
     resolution: {integrity: sha512-GhiG1C8X98Xz9QUX/RlA6/kgPBWJkjq0Rq6//5XTAGSYrTMBgcLpP9+CnlUg1TFxnnCVughAG+KZl28XJqw8uQ==}
     dependencies:
       '@vue/compiler-core': 3.2.33
       '@vue/shared': mirrors.tencent.com/@vue/shared/3.2.33
-    dev: false
 
   /@vue/compiler-sfc/3.2.33:
     resolution: {integrity: sha512-H8D0WqagCr295pQjUYyO8P3IejM3vEzeCO1apzByAEaAR/WimhMYczHfZVvlCE/9yBaEu/eu9RdiWr0kF8b71Q==}
@@ -198,14 +198,12 @@ packages:
       magic-string: mirrors.tencent.com/magic-string/0.25.9
       postcss: mirrors.tencent.com/postcss/8.4.13
       source-map: mirrors.tencent.com/source-map/0.6.1
-    dev: false
 
   /@vue/compiler-ssr/3.2.33:
     resolution: {integrity: sha512-XQh1Xdk3VquDpXsnoCd7JnMoWec9CfAzQDQsaMcSU79OrrO2PNR0ErlIjm/mGq3GmBfkQjzZACV+7GhfRB8xMQ==}
     dependencies:
       '@vue/compiler-dom': 3.2.33
       '@vue/shared': mirrors.tencent.com/@vue/shared/3.2.33
-    dev: false
 
   /@vue/devtools-api/6.1.4:
     resolution: {integrity: sha512-IiA0SvDrJEgXvVxjNkHPFfDx6SXw0b/TUkqMcDZWNg9fnCAHbTpoo59YfJ9QLFkwa3raau5vSlRVzMSLDnfdtQ==}
@@ -219,14 +217,12 @@ packages:
       '@vue/shared': mirrors.tencent.com/@vue/shared/3.2.33
       estree-walker: mirrors.tencent.com/estree-walker/2.0.2
       magic-string: mirrors.tencent.com/magic-string/0.25.9
-    dev: false
 
   /@vue/runtime-core/3.2.33:
     resolution: {integrity: sha512-N2D2vfaXsBPhzCV3JsXQa2NECjxP3eXgZlFqKh4tgakp3iX6LCGv76DLlc+IfFZq+TW10Y8QUfeihXOupJ1dGw==}
     dependencies:
       '@vue/reactivity': mirrors.tencent.com/@vue/reactivity/3.2.33
       '@vue/shared': mirrors.tencent.com/@vue/shared/3.2.33
-    dev: false
 
   /@vue/runtime-dom/3.2.33:
     resolution: {integrity: sha512-LSrJ6W7CZTSUygX5s8aFkraDWlO6K4geOwA3quFF2O+hC3QuAMZt/0Xb7JKE3C4JD4pFwCSO7oCrZmZ0BIJUnw==}
@@ -234,7 +230,6 @@ packages:
       '@vue/runtime-core': 3.2.33
       '@vue/shared': mirrors.tencent.com/@vue/shared/3.2.33
       csstype: mirrors.tencent.com/csstype/2.6.20
-    dev: false
 
   /@vue/server-renderer/3.2.33_vue@3.2.33:
     resolution: {integrity: sha512-4jpJHRD4ORv8PlbYi+/MfP8ec1okz6rybe36MdpkDrGIdEItHEUyaHSKvz+ptNEyQpALmmVfRteHkU9F8vxOew==}
@@ -244,11 +239,9 @@ packages:
       '@vue/compiler-ssr': 3.2.33
       '@vue/shared': mirrors.tencent.com/@vue/shared/3.2.33
       vue: mirrors.tencent.com/vue/3.2.33
-    dev: false
 
   /@vue/shared/3.2.33:
     resolution: {integrity: sha512-UBc1Pg1T3yZ97vsA2ueER0F6GbJebLHYlEi4ou1H5YL4KWvMOOWwpYo9/QpWq93wxKG6Wo13IY74Hcn/f7c7Bg==}
-    dev: false
 
   /@vue/tsconfig/0.1.3_@types+node@16.11.33:
     resolution: {integrity: sha512-kQVsh8yyWPvHpb8gIc9l/HIDiiVUy1amynLNpCy8p+FoCiZXCo6fQos5/097MmnNZc9AtseDsCrfkhqCrJ8Olg==}
@@ -460,6 +453,10 @@ packages:
       postcss: mirrors.tencent.com/postcss/8.4.13
       postcss-selector-parser: mirrors.tencent.com/postcss-selector-parser/6.0.10
     dev: true
+
+  /pressure/2.2.0:
+    resolution: {integrity: sha512-FZAIZTfsz3hIApUQGRKN9fcQYcjsuCB/EWKj5rWr+7hhdkT+3EK8vYsGcdzFebZE7FQTHaIz8Z9k7xTYEs3Qng==}
+    dev: false
 
   /promise/7.3.1:
     resolution: {integrity: sha512-nolQXZ/4L+bP/UGlkfaIujX9BKxGwmQ9OT4mOt5yvy8iK1h3wqTEJCijzGANTCCl9nWjY41juyAn2K3Q1hLLTg==}
@@ -897,7 +894,6 @@ packages:
       '@vueuse/shared': mirrors.tencent.com/@vueuse/shared/8.4.0_vue@3.2.33
       vue: mirrors.tencent.com/vue/3.2.33
       vue-demi: mirrors.tencent.com/vue-demi/0.12.5_vue@3.2.33
-    dev: false
 
   mirrors.tencent.com/@vueuse/shared/8.4.0_vue@3.2.33:
     resolution: {integrity: sha512-8ECJyrr6e/PTkJOTP4ym2KDVfabWfcx+8K2sz00XofzjKBlUeYEiBTaXor/SzoInlQLkJtMpa6Z81NYNpxzIOw==, registry: http://mirrors.cloud.tencent.com/npm/, tarball: http://mirrors.tencent.com/npm/@vueuse%2fshared/-/shared-8.4.0.tgz}
@@ -1081,7 +1077,6 @@ packages:
     resolution: {integrity: sha512-/WwNkdXfckNgw6S5R125rrW8ez139lBHWouiBvX8dfMFtcn6V81REDqnH7+CRpRipfYlyU1CmOnOxrmGcFOjeA==, registry: http://mirrors.cloud.tencent.com/npm/, tarball: http://mirrors.tencent.com/npm/csstype/-/csstype-2.6.20.tgz}
     name: csstype
     version: 2.6.20
-    dev: false
 
   mirrors.tencent.com/dayjs/1.11.2:
     resolution: {integrity: sha512-F4LXf1OeU9hrSYRPTTj/6FbO4HTjPKXvEIC1P2kcnFurViINCVk3ZV0xAS3XVx9MkMsXbbqlK6hjseaYbgKEHw==, registry: http://mirrors.cloud.tencent.com/npm/, tarball: https://mirrors.tencent.com/npm/dayjs/-/dayjs-1.11.2.tgz}
@@ -2206,7 +2201,6 @@ packages:
       '@vue/runtime-dom': 3.2.33
       '@vue/server-renderer': 3.2.33_vue@3.2.33
       '@vue/shared': 3.2.33
-    dev: false
 
   mirrors.tencent.com/vuedraggable/4.1.0_vue@3.2.33:
     resolution: {integrity: sha512-FU5HCWBmsf20GpP3eudURW3WdWTKIbEIQxh9/8GE806hydR9qZqRRxRE3RjqX7PkuLuMQG/A7n3cfj9rCEchww==, registry: http://mirrors.cloud.tencent.com/npm/, tarball: https://mirrors.tencent.com/npm/vuedraggable/-/vuedraggable-4.1.0.tgz}

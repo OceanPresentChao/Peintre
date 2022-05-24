@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@vueuse/core": "^8.2.3",
+    "pressure": "^2.2.0",
     "vue": "^3.2.31"
   },
   "devDependencies": {
