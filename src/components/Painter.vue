@@ -345,7 +345,7 @@ onMounted(() => {
         ctx.strokeStyle = config.strokecolor
         ctx.fillStyle = config.strokecolor
         ctx.lineWidth = config.linewidth
-      } else if (currentToolConfig.value.tool === Tool.rectangle) {
+      } else if (currentToolConfig.value.tool === Tool.rectangle || currentToolConfig.value.tool === Tool.ellipse) {
         ctx.strokeStyle = config.strokecolor
         ctx.fillStyle = config.fillcolor
         ctx.lineWidth = config.linewidth

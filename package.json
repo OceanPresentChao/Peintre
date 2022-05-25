@@ -1,6 +1,6 @@
 {
   "name": "peintre",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "MIT",
   "description": "a configurable painter component for Vue 3",
   "author": "OceanPresent <oceanpresent@163.com>",
