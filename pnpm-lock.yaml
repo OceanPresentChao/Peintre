@@ -18,7 +18,6 @@ specifiers:
   vite: ^2.8.4
   vite-plugin-style-import: ^2.0.0
   vue: ^3.2.31
-  vue-router: ^4.0.15
   vue-tsc: ^0.31.4
   vuedraggable: ^4.1.0
 
@@ -42,7 +41,6 @@ devDependencies:
   unplugin-vue-components: mirrors.tencent.com/unplugin-vue-components/0.18.5_vite@2.9.7+vue@3.2.33
   vite: mirrors.tencent.com/vite/2.9.7
   vite-plugin-style-import: 2.0.0_vite@2.9.7
-  vue-router: 4.0.15_vue@3.2.33
   vue-tsc: mirrors.tencent.com/vue-tsc/0.31.4_typescript@4.5.5
   vuedraggable: mirrors.tencent.com/vuedraggable/4.1.0_vue@3.2.33
 
@@ -204,10 +202,6 @@ packages:
     dependencies:
       '@vue/compiler-dom': 3.2.33
       '@vue/shared': mirrors.tencent.com/@vue/shared/3.2.33
-
-  /@vue/devtools-api/6.1.4:
-    resolution: {integrity: sha512-IiA0SvDrJEgXvVxjNkHPFfDx6SXw0b/TUkqMcDZWNg9fnCAHbTpoo59YfJ9QLFkwa3raau5vSlRVzMSLDnfdtQ==}
-    dev: true
 
   /@vue/reactivity-transform/3.2.33:
     resolution: {integrity: sha512-4UL5KOIvSQb254aqenW4q34qMXbfZcmEsV/yVidLUgvwYQQ/D21bGX3DlgPUGI3c4C+iOnNmDCkIxkILoX/Pyw==}
@@ -753,15 +747,6 @@ packages:
       vscode-languageserver-textdocument: 1.0.4
       vscode-pug-languageservice: 0.31.4
       vscode-typescript-languageservice: 0.31.4
-    dev: true
-
-  /vue-router/4.0.15_vue@3.2.33:
-    resolution: {integrity: sha512-xa+pIN9ZqORdIW1MkN2+d9Ui2pCM1b/UMgwYUCZOiFYHAvz/slKKBDha8DLrh5aCG/RibtrpyhKjKOZ85tYyWg==}
-    peerDependencies:
-      vue: ^3.2.0
-    dependencies:
-      '@vue/devtools-api': 6.1.4
-      vue: mirrors.tencent.com/vue/3.2.33
     dev: true
 
   /yaml/1.10.2:

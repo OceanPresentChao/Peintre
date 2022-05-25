@@ -1,16 +1,31 @@
 {
   "name": "peintre",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "license": "MIT",
+  "description": "a configurable painter component for Vue 3",
   "author": "OceanPresent <oceanpresent@163.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/OceanPresentChao/Peintre.git"
   },
   "keywords": [
-    "oceanpresent"
+    "vue-painter",
+    "painter",
+    "drawer",
+    "canvas"
   ],
   "homepage": "https://github.com/OceanPresentChao/Peintre",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/peintre.umd.js",
+  "module": "./dist/peintre.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/peintre.es.js",
+      "require": "./dist/peintre.umd.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
@@ -37,7 +52,6 @@
     "unplugin-vue-components": "^0.18.5",
     "vite": "^2.8.4",
     "vite-plugin-style-import": "^2.0.0",
-    "vue-router": "^4.0.15",
     "vue-tsc": "^0.31.4",
     "vuedraggable": "^4.1.0"
   }

@@ -33,13 +33,13 @@
       <el-slider v-model="currentToolConfig.maxwidth" show-input :min="minWidth" :max="maxWidth" :step="1" />
     </div>
     <div class="relative cursor-none" ref="canvasContainerRef" id="canvasContainer">
-      <canvas :width="CanvasConfig.width" :height="CanvasConfig.height" ref="cursorRef" class="absolute top-0"></canvas>
-      <canvas v-for="layer in layers" :ref="setCanvasRef" :key="layer.id" class="absolute top-0"
-        :width="CanvasConfig.width" :height="CanvasConfig.height"></canvas>
-      <canvas :width="CanvasConfig.width" :height="CanvasConfig.height" ref="imageRef"></canvas>
+      <canvas :width="width" :height="height" ref="cursorRef" class="absolute top-0"></canvas>
+      <canvas v-for="layer in layers" :ref="setCanvasRef" :key="layer.id" class="absolute top-0" :width="width"
+        :height="height"></canvas>
+      <canvas :width="width" :height="height" ref="imageRef"></canvas>
     </div>
     <div>
-      current layer id:{{ currentLayer?.id }}
+      current layer:{{ currentLayer?.name }}
       layers num:{{ canvasRefs.length }}
     </div>
     <div>
@@ -47,7 +47,7 @@
         @end="isDragging = false">
         <template #item="{ element }">
           <el-button type="danger" size="default" text @click="changeLayer(element.id)">
-            {{ element.id }}
+            {{ element.name }}
           </el-button>
         </template>
       </draggable>
@@ -61,13 +61,26 @@ import type { ComputedRef, Ref } from 'vue';
 import { nanoid } from "nanoid"
 import { PencilConfig, useEraser, useLine, usePencil } from '@/tools';
 import type { ToolEventsObject } from '@/tools/type';
-import { CanvasConfig } from '@/utils/config';
 import { useRectangle } from '@/tools/rectangle';
 import { useEllipse } from '@/tools/ellipse';
 import draggable from 'vuedraggable';
 import * as Pressure from 'pressure';
 
 const props = defineProps({
+  width: {
+    type: Number,
+    default: 800,
+    validate(value: number) {
+      return value > 0
+    }
+  },
+  height: {
+    type: Number,
+    default: 600,
+    validate(value: number) {
+      return value > 0
+    }
+  },
   maxWidth: {
     type: Number,
     default: 500,
@@ -90,11 +103,13 @@ const props = defineProps({
 
 interface Layer extends Object {
   id: string
+  name: string
   canvas: HTMLCanvasElement | null
   context: CanvasRenderingContext2D | null
   imageStack: Array<ImageData>
 }
 
+let totalNum = 0
 const isDragging = ref(false)
 // const layers:Ref<LayerContainer> = useLocalStorage("canvasLayers", {})
 const layers = ref<Array<Layer>>([])
@@ -126,7 +141,7 @@ function findLayer(layerid: string): Layer | null {
 function addLayer() {
   if (!layers.value) return
   const id = nanoid()
-  const newlayer: Layer = { id: id, canvas: null, context: null, imageStack: [] }
+  const newlayer: Layer = { id: id, canvas: null, context: null, imageStack: [], name: `图层${++totalNum}` }
   layers.value.push(newlayer)
   nextTick(() => {
     newlayer.canvas = canvasRefs.value[canvasRefs.value.length - 1]
