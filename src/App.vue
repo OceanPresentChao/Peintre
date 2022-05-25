@@ -3,9 +3,7 @@
 </script>
 
 <template>
-  <main>
-    <Painter :max-width="500" :min-width="2" />
-  </main>
+  <Painter :maxLine="500" :minLine="1" />
 </template>
 
 <style>
@@ -14,12 +12,5 @@
   margin: 0 auto;
   padding: 2rem;
   font-weight: normal;
-}
-
-main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.5;
 }
 </style>

@@ -13,28 +13,24 @@
 7. 滚轮修改画笔大小，光标大小随画笔变化 √
 8. 撤销操作 √
 
-## Recommended IDE Setup
+## Live Demo
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.vscode-typescript-vue-plugin).
+[Demo](https://oceanpresentchao.github.io/Peintre/)
 
-## Customize configuration
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+## Installation
 
-## Project Setup
+### With npm
 
-```sh
-npm install
+```bash
+npm i -S peintre@next
 ```
 
-### Compile and Hot-Reload for Development
+## Usage
 
-```sh
-npm run dev 
-```
+```html
+import Peintre from "peintre"
 
-### Type-Check, Compile and Minify for Production
+<Peintre :pressure="false" :width="800" :height="600" :maxLine="500" :minLine="1"></Peintre>
 
-```sh
-npm run build
 ```

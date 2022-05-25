@@ -21,7 +21,7 @@
       </el-button>
       <el-button type="primary" size="default" @click="saveImage">Save Image</el-button>
     </div>
-    <div>
+    <div class="mt-3 text-base">
       <span :style="{ color: currentToolConfig.strokecolor }">
         strokecolor：
         <el-color-picker v-model="currentToolConfig.strokecolor" :predefine="predefineColors" />
@@ -30,7 +30,7 @@
         fillcolor：
         <el-color-picker show-alpha v-model="currentToolConfig.fillcolor" :predefine="predefineColors" />
       </span>
-      <el-slider v-model="currentToolConfig.maxwidth" show-input :min="minWidth" :max="maxWidth" :step="1" />
+      <el-slider v-model="currentToolConfig.maxwidth" show-input :min="minLine" :max="maxLine" :step="1" />
     </div>
     <div class="relative cursor-none" ref="canvasContainerRef" id="canvasContainer">
       <canvas :width="width" :height="height" ref="cursorRef" class="absolute top-0"></canvas>
@@ -38,9 +38,13 @@
         :height="height"></canvas>
       <canvas :width="width" :height="height" ref="imageRef"></canvas>
     </div>
-    <div>
-      current layer:{{ currentLayer?.name }}
-      layers num:{{ canvasRefs.length }}
+    <div class="mt-3 text-lg text-gray-700">
+      <span>
+        current layer: {{ currentLayer?.name }}
+      </span>
+      <span>
+        layers num: {{ canvasRefs.length }}
+      </span>
     </div>
     <div>
       <draggable v-model="layers" item-key="id" ghost-class="ghost" @start="isDragging = true"
@@ -81,14 +85,14 @@ const props = defineProps({
       return value > 0
     }
   },
-  maxWidth: {
+  maxLine: {
     type: Number,
     default: 500,
     validate(value: number) {
       return value > 0
     }
   },
-  minWidth: {
+  minLine: {
     type: Number,
     default: 1,
     validate(value: number) {
@@ -269,9 +273,9 @@ function initCursor() {
 function initScroll() {
   const onWheel = (event: WheelEvent) => {
     event.preventDefault()
-    if (event.deltaY >= 0 && currentToolConfig.value.maxwidth > props.minWidth) {
+    if (event.deltaY >= 0 && currentToolConfig.value.maxwidth > props.minLine) {
       currentToolConfig.value.maxwidth -= Math.abs(Math.round(event.deltaY / 100) * 5)
-    } else if (event.deltaY < 0 && currentToolConfig.value.maxwidth < props.maxWidth) {
+    } else if (event.deltaY < 0 && currentToolConfig.value.maxwidth < props.maxLine) {
       currentToolConfig.value.maxwidth += Math.abs(Math.round(event.deltaY / 100) * 5)
     }
   }
