@@ -1,63 +1,67 @@
 <template>
-  <div>
+  <div class="flex">
     <!-- Main content -->
-    <div>
-      <el-button type="warning" size="default" @click="addLayer">Add Layer</el-button>
-      <el-button type="warning" size="default" @click="deleteLayer" :disabled="layers.length <= 1">Delete Layer
-      </el-button>
-      <el-button type="success" size="default" @click="changeTool(Tool.pencil)">Pencil</el-button>
-      <el-button type="success" size="default" @click="changeTool(Tool.eraser)">Eraser</el-button>
-      <el-button type="success" size="default" @click="changeTool(Tool.line)">Line</el-button>
-      <el-button type="success" size="default" @click="changeTool(Tool.rectangle)">
-        <span v-show="currentToolConfig.isRectFill">RectangleFilled</span>
-        <span v-show="!currentToolConfig.isRectFill">RectangleStroked</span>
-      </el-button>
-      <el-button type="success" size="default" @click="changeTool(Tool.ellipse)">
-        <span v-show="currentToolConfig.isEllipseFill">EllipseFillFilled</span>
-        <span v-show="!currentToolConfig.isEllipseFill">EllipseFillStroked</span>
-      </el-button>
-      <el-button type="primary" size="default" @click="clearCtx(currentCtx)">Clear</el-button>
-      <el-button type="primary" size="default" @click="goPrevious" :disabled="layeridStack.length <= 0">Previous
-      </el-button>
-      <el-button type="primary" size="default" @click="saveImage">Save Image</el-button>
-    </div>
-    <div class="mt-3 text-base">
-      <span :style="{ color: currentToolConfig.strokecolor }">
-        strokecolor：
-        <el-color-picker v-model="currentToolConfig.strokecolor" :predefine="predefineColors" />
-      </span>
-      <span :style="{ color: currentToolConfig.fillcolor }">
-        fillcolor：
-        <el-color-picker show-alpha v-model="currentToolConfig.fillcolor" :predefine="predefineColors" />
-      </span>
-      <el-slider v-model="currentToolConfig.maxwidth" show-input :min="minLine" :max="maxLine" :step="1" />
-    </div>
-    <div class="relative cursor-none" ref="canvasContainerRef" id="canvasContainer">
+    <div class="relative cursor-none flex-none" ref="canvasContainerRef" id="canvasContainer">
       <canvas :width="width" :height="height" ref="cursorRef" class="absolute top-0"></canvas>
       <canvas v-for="layer in layers" :ref="setCanvasRef" :key="layer.id" class="absolute top-0" :width="width"
         :height="height"></canvas>
       <canvas :width="width" :height="height" ref="imageRef"></canvas>
     </div>
-    <div class="mt-3 text-lg text-gray-700">
-      <span>
-        current layer: {{ currentLayer?.name }}
-      </span>
-      <span>
-        layers num: {{ canvasRefs.length }}
-      </span>
-    </div>
-    <div>
-      <draggable v-model="layers" item-key="id" ghost-class="ghost" @start="isDragging = true"
-        @end="isDragging = false">
-        <template #item="{ element }">
-          <el-button type="danger" size="default" text @click="changeLayer(element.id)">
-            {{ element.name }}
-          </el-button>
-        </template>
-      </draggable>
+    <div class="flex-1 px-1 bg-gray-200 rounded-lg ml-2">
+      <div class="my-2 flex flex-col">
+        <el-button text type="warning" size="default" @click="addLayer" style="margin-left: 12px;">Add Layer
+        </el-button>
+        <el-button text type="warning" size="default" @click="deleteLayer" :disabled="layers.length <= 1">Delete Layer
+        </el-button>
+        <el-button text type="primary" size="default" @click="changeTool(Tool.pencil)">Pencil</el-button>
+        <el-button text type="primary" size="default" @click="changeTool(Tool.eraser)">Eraser</el-button>
+        <el-button text type="primary" size="default" @click="changeTool(Tool.line)">Line</el-button>
+        <el-button text type="primary" size="default" @click="changeTool(Tool.rectangle)">
+          Rectangle
+        </el-button>
+        <el-button text type="primary" size="default" @click="changeTool(Tool.ellipse)">
+          Ellipse
+        </el-button>
+        <el-button text type="success" size="default" @click="clearCtx(currentCtx)">Clear</el-button>
+        <el-button text type="success" size="default" @click="goPrevious" :disabled="layeridStack.length <= 0">Previous
+        </el-button>
+        <el-button text type="success" size="default" @click="saveImage">Save Image</el-button>
+      </div>
+      <div class="my-2 text-base flex justify-evenly">
+        <span :style="{ color: currentToolConfig.strokecolor }">
+          strokecolor：
+          <el-color-picker v-model="currentToolConfig.strokecolor" :predefine="predefineColors" />
+        </span>
+        <span :style="{ color: currentToolConfig.fillcolor }">
+          fillcolor：
+          <el-color-picker show-alpha v-model="currentToolConfig.fillcolor" :predefine="predefineColors" />
+        </span>
+      </div>
+      <div>
+        <el-slider v-model="currentToolConfig.maxwidth" show-input :min="minLine" :max="maxLine" :step="1" />
+      </div>
+      <div class="my-2 text-lg text-gray-700 text-center">
+        <span class="font-bold">
+          current layer:
+        </span>
+        <span>{{ currentLayer?.name }}</span>
+        <span class="font-bold">
+          layers amount:
+        </span>
+        <span>{{ canvasRefs.length }}</span>
+      </div>
+      <div>
+        <draggable v-model="layers" item-key="id" ghost-class="ghost" @start="isDragging = true" class="flex flex-col"
+          @end="isDragging = false">
+          <template #item="{ element }">
+            <el-button type="danger" size="default" text @click="changeLayer(element.id)">
+              {{ element.name }}
+            </el-button>
+          </template>
+        </draggable>
+      </div>
     </div>
   </div>
-
 </template>
 
 <script setup lang="ts">
@@ -182,16 +186,12 @@ const currentToolConfig = ref<{
   fillcolor: string,
   linewidth: number,
   maxwidth: number,
-  isRectFill: boolean,
-  isEllipseFill: boolean
 }>({
   tool: Tool.pencil,
   strokecolor: 'rgba(255, 69, 0)',
   fillcolor: 'rgba(255, 69, 0)',
   linewidth: 5,
   maxwidth: 5,
-  isRectFill: false,
-  isEllipseFill: false
 })
 
 function changeTool(type: Tool) {

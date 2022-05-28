@@ -9,7 +9,8 @@ lang: zh-CN
 
 ## 如何实现多图层
 
-多个canvas添加，将其position属性设置为absolute。记录当前选中图层，获取其context进行绘制
+多个canvas添加，将其position属性设置为absolute。记录当前选中图层，获取其context进行绘制。最终保存图片时，将所有图层都绘制到同一个canvas上，然后再保存下载即可。
+多图层的拖动摆放使用了[vue.draggable.next](https://github.com/SortableJS/vue.draggable.next)库
 
 ## 如何实现画笔
 
@@ -36,3 +37,6 @@ canvas设置strokestyle和fillstyle时允许rgba等带有透明度的颜色，�
 最初是打算修改dom元素的cursor样式，将cursor设置为一个圆圈svg图像，效果不错。但是这只能做到静态样式，没办法随画笔的改变而改变圆圈的半径，使用vue的动态样式也不行，因为传入的应为一个url()，不过可能是我不会处理。
 
 最终的解决方法为：单独设置一个canvas图层，放在最顶层。绑定鼠标事件不断绘制一个半径与“当前画笔半径”相关的圆圈，并把原生的cursor样式设置为none，就产生了动态cursor的效果
+
+## 如何实现压感支持
+使用了[Pressure](https://github.com/stuyam/pressure)库，通过感知压感来调节当前画笔大小
