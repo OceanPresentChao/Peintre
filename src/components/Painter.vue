@@ -239,6 +239,9 @@ function initTools() {
   }
   const onMouseup = (e: MouseEvent) => {
     getcurrentToolEvents().onMouseup(e)
+    if (props.pressure) {
+      currentToolConfig.value.linewidth = props.minLine
+    }
   }
   const onMouseleave = (e: MouseEvent) => {
     getcurrentToolEvents().onMouseleave(e)
@@ -292,13 +295,15 @@ function initPainter() {
 
 onMounted(() => {
   initPainter()
-  if (props.pressure) {
-    Pressure.set("#canvasContainer", {
-      change: function (force: any) {
+  Pressure.set("#canvasContainer", {
+    change: function (force: any) {
+      if (props.pressure) {
         currentToolConfig.value.linewidth = Math.round(force * currentToolConfig.value.maxwidth)
+      } else {
+        currentToolConfig.value.linewidth = currentToolConfig.value.maxwidth
       }
-    })
-  }
+    }
+  })
 })
 
 function clearCtx(context: CanvasRenderingContext2D | HTMLCanvasElement | null) {
@@ -338,9 +343,6 @@ onMounted(() => {
   nextTick(() => {
     watch([currentCtx, currentToolConfig], ([ctx, config]) => {
       if (!ctx) return
-      if (!props.pressure) {
-        config.linewidth = config.maxwidth
-      }
       if (currentToolConfig.value.tool === Tool.pencil || currentToolConfig.value.tool === Tool.eraser || currentToolConfig.value.tool === Tool.line) {
         ctx.strokeStyle = config.strokecolor
         ctx.fillStyle = config.strokecolor
