@@ -1,4 +1,3 @@
-
 export interface ToolEventsObject {
     onMousedown: (e: MouseEvent) => any
     onMousemove: (e: MouseEvent) => any

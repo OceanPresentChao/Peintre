@@ -1,0 +1,17 @@
+{
+    "pencil": "铅笔",
+    "eraser": "橡皮",
+    "rectangle": "矩形",
+    "ellipse": "椭圆",
+    "line": "直线",
+    "addL": "添加图层",
+    "rmL": "删除图层",
+    "cls": "清空",
+    "pre": "撤销",
+    "save": "保存图片",
+    "clayer": "当前图层",
+    "layern": "图层数量",
+    "scolor": "描边颜色",
+    "fcolor": "填充颜色",
+    "layer": "图层"
+}

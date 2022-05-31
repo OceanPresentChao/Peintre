@@ -1,0 +1,17 @@
+{
+    "pencil": "Pencil",
+    "eraser": "Eraser",
+    "rectangle": "Rectangle",
+    "ellipse": "Ellipse",
+    "line": "Line",
+    "addL": "Add Layer",
+    "rmL": "Remove Layer",
+    "cls": "Clear",
+    "pre": "Previous",
+    "save": "Save Image",
+    "clayer": "Current Layer",
+    "layern": "Layer Num",
+    "scolor": "Stroke Color",
+    "fcolor": "Fill Color",
+    "layer": "layer"
+}

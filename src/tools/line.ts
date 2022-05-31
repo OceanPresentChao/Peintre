@@ -38,7 +38,7 @@ export function useLine(context: Ref<CanvasRenderingContext2D | null> | Computed
     const onMouseup = (e: MouseEvent) => {
         isPainting = false
     }
-    const onMouseleave = onMouseup
+    const onMouseleave = emptyEventFun
     return {
         onMousedown: useThrottleFn(onMousedown, LineConfig.delay),
         onMousemove: useThrottleFn(onMousemove, LineConfig.delay),

@@ -58,7 +58,7 @@ export function useEraser(context: Ref<CanvasRenderingContext2D | null> | Comput
         isClearing = false
         context.value!.closePath()
     }
-    const onMouseleave = onMouseup
+    const onMouseleave = emptyEventFun
     return {
         onMousedown: useThrottleFn(onMousedown, EraserConfig.delay),
         onMousemove: useThrottleFn(onMousemove, EraserConfig.delay),

@@ -39,7 +39,7 @@ export function useEllipse(context: Ref<CanvasRenderingContext2D | null> | Compu
     const onMouseup = (e: MouseEvent) => {
         isPainting = false
     }
-    const onMouseleave = onMouseup
+    const onMouseleave = emptyEventFun
     return {
         onMousedown: useThrottleFn(onMousedown, EllipseConfig.delay),
         onMousemove: useThrottleFn(onMousemove, EllipseConfig.delay),

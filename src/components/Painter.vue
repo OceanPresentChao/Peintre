@@ -9,31 +9,35 @@
     </div>
     <div class="flex-1 px-1 bg-gray-200 rounded-lg ml-2">
       <div class="my-2 flex flex-col">
-        <el-button text type="warning" size="default" @click="addLayer" style="margin-left: 12px;">Add Layer
+        <el-button text type="primary" size="default" @click="changeTool(Tool.pencil)" style="margin-left: 12px;">
+          {{ t("pencil") }}
         </el-button>
-        <el-button text type="warning" size="default" @click="deleteLayer" :disabled="layers.length <= 1">Delete Layer
-        </el-button>
-        <el-button text type="primary" size="default" @click="changeTool(Tool.pencil)">Pencil</el-button>
-        <el-button text type="primary" size="default" @click="changeTool(Tool.eraser)">Eraser</el-button>
-        <el-button text type="primary" size="default" @click="changeTool(Tool.line)">Line</el-button>
+        <el-button text type="primary" size="default" @click="changeTool(Tool.eraser)">{{ t("eraser") }}</el-button>
+        <el-button text type="primary" size="default" @click="changeTool(Tool.line)">{{ t("line") }}</el-button>
         <el-button text type="primary" size="default" @click="changeTool(Tool.rectangle)">
-          Rectangle
+          {{ t("rectangle") }}
         </el-button>
         <el-button text type="primary" size="default" @click="changeTool(Tool.ellipse)">
-          Ellipse
+          {{ t("ellipse") }}
         </el-button>
-        <el-button text type="success" size="default" @click="clearCtx(currentCtx)">Clear</el-button>
-        <el-button text type="success" size="default" @click="goPrevious" :disabled="layeridStack.length <= 0">Previous
+        <el-button text type="warning" size="default" @click="addLayer">{{ t("addL") }}
         </el-button>
-        <el-button text type="success" size="default" @click="saveImage">Save Image</el-button>
+        <el-button text type="warning" size="default" @click="deleteLayer" :disabled="layers.length <= 1">{{ t("rmL") }}
+        </el-button>
+        <el-button text type="success" size="default" @click="clearCtx(currentCtx)">{{ t("cls") }}</el-button>
+        <el-button text type="success" size="default" @click="goPrevious" :disabled="layeridStack.length <= 0">{{
+            t("pre")
+        }}
+        </el-button>
+        <el-button text type="success" size="default" @click="saveImage">{{ t("save") }}</el-button>
       </div>
       <div class="my-2 text-base flex justify-evenly">
         <span :style="{ color: currentToolConfig.strokecolor }">
-          strokecolor：
+          {{ t("scolor") }}:
           <el-color-picker v-model="currentToolConfig.strokecolor" :predefine="predefineColors" />
         </span>
         <span :style="{ color: currentToolConfig.fillcolor }">
-          fillcolor：
+          {{ t("fcolor") }}:
           <el-color-picker show-alpha v-model="currentToolConfig.fillcolor" :predefine="predefineColors" />
         </span>
       </div>
@@ -42,11 +46,11 @@
       </div>
       <div class="my-2 text-lg text-gray-700 text-center">
         <span class="font-bold">
-          current layer:
+          {{ t("clayer") }}:
         </span>
         <span>{{ currentLayer?.name }}</span>
         <span class="font-bold">
-          layers amount:
+          {{ t("layern") }}:
         </span>
         <span>{{ canvasRefs.length }}</span>
       </div>
@@ -73,7 +77,7 @@ import { useRectangle } from '@/tools/rectangle';
 import { useEllipse } from '@/tools/ellipse';
 import draggable from 'vuedraggable';
 import * as Pressure from 'pressure';
-
+const { t, locale, availableLocales } = useI18n()
 const props = defineProps({
   width: {
     type: Number,
@@ -106,6 +110,10 @@ const props = defineProps({
   pressure: {
     type: Boolean,
     default: false
+  },
+  lang: {
+    type: String,
+    default: "en"
   }
 })
 
@@ -149,7 +157,7 @@ function findLayer(layerid: string): Layer | null {
 function addLayer() {
   if (!layers.value) return
   const id = nanoid()
-  const newlayer: Layer = { id: id, canvas: null, context: null, imageStack: [], name: `图层${++totalNum}` }
+  const newlayer: Layer = { id: id, canvas: null, context: null, imageStack: [], name: `${t("layer")}${++totalNum}` }
   layers.value.push(newlayer)
   nextTick(() => {
     newlayer.canvas = canvasRefs.value[canvasRefs.value.length - 1]
@@ -286,15 +294,7 @@ function initScroll() {
 
 }
 
-function initPainter() {
-  addLayer()
-  initTools()
-  initCursor()
-  initScroll()
-}
-
-onMounted(() => {
-  initPainter()
+function initPressure() {
   Pressure.set("#canvasContainer", {
     change: function (force: any) {
       if (props.pressure) {
@@ -304,6 +304,25 @@ onMounted(() => {
       }
     }
   })
+}
+
+function initPainter() {
+  addLayer()
+  initTools()
+  initCursor()
+  initScroll()
+  initPressure()
+}
+
+function initLang() {
+  if (availableLocales.includes(props.lang)) {
+    locale.value = props.lang
+  }
+}
+
+onMounted(() => {
+  initPainter()
+  initLang()
 })
 
 function clearCtx(context: CanvasRenderingContext2D | HTMLCanvasElement | null) {

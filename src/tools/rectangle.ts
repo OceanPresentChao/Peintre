@@ -39,7 +39,7 @@ export function useRectangle(context: Ref<CanvasRenderingContext2D | null> | Com
     const onMouseup = (e: MouseEvent) => {
         isPainting = false
     }
-    const onMouseleave = onMouseup
+    const onMouseleave = emptyEventFun
     return {
         onMousedown: useThrottleFn(onMousedown, RectConfig.delay),
         onMousemove: useThrottleFn(onMousemove, RectConfig.delay),

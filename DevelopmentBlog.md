@@ -7,6 +7,7 @@ lang: zh-CN
 
 # Peintre开发日志
 
+[Peintre项目GitHub地址](https://github.com/OceanPresentChao/Peintre)
 ## 如何实现多图层
 
 多个canvas添加，将其position属性设置为absolute。记录当前选中图层，获取其context进行绘制。最终保存图片时，将所有图层都绘制到同一个canvas上，然后再保存下载即可。
