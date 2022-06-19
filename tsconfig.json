@@ -10,6 +10,8 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "baseUrl": ".",
+    "declaration": true,
+    "declarationMap": true,
     "paths": {
       "@/*": [
         "./src/*"
