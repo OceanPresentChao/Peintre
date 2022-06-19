@@ -23,7 +23,7 @@
 ### With npm
 
 ```bash
-npm i -S peintre@next
+npm i -S peintre
 ```
 
 ## Usage
@@ -44,3 +44,6 @@ import Peintre from "peintre"
 | minLine    | min context linewidth   | number |   1     |
 | pressure    | whether support pressure or not   | boolean |   false    |
 | lang    | Language   | string |  "zh" \| "en"    |
+
+## DevelopmentBlog
+[Peintre开发日志](http://oceanpresent.art/posts/hard-boiled-wonderland/peintre)

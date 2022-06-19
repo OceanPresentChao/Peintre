@@ -4,6 +4,7 @@ import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import path from 'path';
 import vueI18n from '@intlify/vite-plugin-vue-i18n'
+import dts from 'vite-plugin-dts'
 import {
   ElementPlusResolver,
 } from 'unplugin-vue-components/resolvers'
@@ -37,7 +38,8 @@ export default defineConfig({
 
       // you need to set i18n resource including paths !
       include: path.resolve(__dirname, './src/locales/**')
-    })
+    }),
+    dts()
   ],
   resolve: {
     alias: {

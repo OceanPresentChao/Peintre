@@ -1,6 +1,6 @@
 {
   "name": "peintre",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "MIT",
   "description": "a configurable painter component for Vue 3",
   "author": "OceanPresent <oceanpresent@163.com>",
@@ -15,14 +15,16 @@
     "canvas"
   ],
   "homepage": "https://github.com/OceanPresentChao/Peintre",
-  "typings": "types/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "*.d.ts"
   ],
   "main": "./dist/peintre.umd.js",
   "module": "./dist/peintre.es.js",
+  "types": "./dist/src/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/peintre.es.js",
       "require": "./dist/peintre.umd.js"
     }
@@ -35,12 +37,11 @@
   },
   "dependencies": {
     "@vueuse/core": "^8.2.3",
+    "element-plus": "^2.2.0",
     "pressure": "^2.2.0",
     "vue": "^3.2.31",
-    "nanoid": "^3.3.4",
-    "vuedraggable": "^4.1.0",
-    "element-plus": "^2.2.0",
-    "vue-i18n": "^9.1.10"
+    "vue-i18n": "^9.1.10",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@intlify/vite-plugin-vue-i18n": "^3.4.0",
@@ -49,12 +50,14 @@
     "@vue/tsconfig": "^0.1.3",
     "autoprefixer": "^10.4.7",
     "consola": "^2.15.3",
+    "nanoid": "^3.3.4",
     "postcss": "^8.4.13",
     "tailwindcss": "^3.0.24",
     "typescript": "~4.5.5",
     "unplugin-auto-import": "^0.6.9",
     "unplugin-vue-components": "^0.18.5",
     "vite": "^2.8.4",
+    "vite-plugin-dts": "^1.2.0",
     "vite-plugin-style-import": "^2.0.0",
     "vue-tsc": "^0.31.4"
   }

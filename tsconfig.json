@@ -9,14 +9,18 @@
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
+    "isolatedModules": true,
     "baseUrl": ".",
     "declaration": true,
-    "declarationMap": true,
+    "declarationDir": "./dist",
     "paths": {
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "types": [
+      "vite/client"
+    ]
   },
   "references": [
     {
