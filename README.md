@@ -29,9 +29,9 @@ npm i -S peintre
 ## Usage
 
 ```html
-import Peintre from "peintre"
+import {Painter} from "peintre"
 
-<Peintre :pressure="false" :width="800" :height="600" :maxLine="500" :minLine="1"></Peintre>
+<Painter :pressure="false" :width="800" :height="600" :maxLine="500" :minLine="1"></Painter>
 
 ```
 ## Props
