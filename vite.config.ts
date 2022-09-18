@@ -2,9 +2,8 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
-import path from 'path';
+import * as path from 'path';
 import vueI18n from '@intlify/vite-plugin-vue-i18n'
-import dts from 'vite-plugin-dts'
 import {
   ElementPlusResolver,
 } from 'unplugin-vue-components/resolvers'
@@ -21,8 +20,6 @@ export default defineConfig({
       // 指定组件位置，默认是src/components
       dirs: ['src/components'],
       extensions: ['vue'],
-      // 配置文件生成位置
-      dts: 'src/components.d.ts'
     }),
     AutoImport({
       imports: ['vue', 'vue-router', 'vue-i18n', '@vueuse/head', '@vueuse/core'],
@@ -39,21 +36,25 @@ export default defineConfig({
       // you need to set i18n resource including paths !
       include: path.resolve(__dirname, './src/locales/**')
     }),
-    dts()
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, '/src')
-    }
+      '@': path.resolve(__dirname, './src')
+    },
+    dedupe: ['vue'],
   },
   server: {
     open: true
   },
   build: {
+    emptyOutDir: false,
     lib: {
-      entry: path.resolve(__dirname, 'src/index.ts'),
+      entry: path.resolve(__dirname, './src/index.ts'),
       name: 'peintre',
       fileName: (format) => `peintre.${format}.js`
+    },
+    commonjsOptions: {
+      esmExternals: true
     },
     rollupOptions: {
       // 确保外部化处理那些你不想打包进库的依赖
@@ -61,7 +62,7 @@ export default defineConfig({
       output: {
         // 在 UMD 构建模式下为这些外部化的依赖提供一个全局变量
         globals: {
-          vue: 'Vue'
+          vue: 'Vue',
         }
       }
     }
