@@ -1,4 +1,5 @@
 import type { ComputedRef, Ref } from "vue"
+import { window2canvas } from "./help"
 import type { ToolEventsObject } from "./type"
 export const LineConfig = {
     delay: 10
@@ -17,15 +18,17 @@ export function useLine(context: Ref<CanvasRenderingContext2D | null> | Computed
 
     const onMousedown = (e: MouseEvent) => {
         if (!context.value) { return }
-        startAxis.x = e.offsetX - context.value!.canvas!.offsetLeft
-        startAxis.y = e.offsetY - context.value!.canvas!.offsetTop
+        const {x:sx,y:sy} = window2canvas(context.value?.canvas!,e.clientX,e.clientY)
+        startAxis.x = sx
+        startAxis.y = sy
         isPainting = true
     }
     const onMousemove = (e: MouseEvent) => {
         if (!context.value || !revert) { return }
         let ctx = context.value
-        endAxis.x = e.offsetX - context.value!.canvas!.offsetLeft
-        endAxis.y = e.offsetY - context.value!.canvas!.offsetTop
+        const {x:ex,y:ey} = window2canvas(context.value?.canvas!,e.clientX,e.clientY)
+        endAxis.x = ex
+        endAxis.y = ey
         if (isPainting) {
             revert()
             ctx.beginPath()

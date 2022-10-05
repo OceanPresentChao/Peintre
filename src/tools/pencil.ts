@@ -1,4 +1,5 @@
 import type { ComputedRef, Ref } from "vue"
+import { window2canvas } from "./help"
 import type { ToolEventsObject } from "./type"
 export const PencilConfig = {
     delay: 10,
@@ -39,10 +40,8 @@ export function usePencil(context: Ref<CanvasRenderingContext2D | null> | Comput
     }
     const onMousedown = (e: MouseEvent) => {
         if (e.button !== 0) return
-        let sx, sy = 0
         isPainting = true
-        sx = e.offsetX - context.value!.canvas!.offsetLeft;
-        sy = e.offsetY - context.value!.canvas!.offsetTop;
+        const {x:sx,y:sy} = window2canvas(context.value?.canvas!,e.clientX,e.clientY)
         lastAxis.x = sx
         lastAxis.y = sy
         if (isPainting) {
@@ -51,9 +50,7 @@ export function usePencil(context: Ref<CanvasRenderingContext2D | null> | Comput
     }
     const onMousemove = (e: MouseEvent) => {
         if (e.button !== 0) return
-        let mx, my = 0
-        mx = e.offsetX - context.value!.canvas!.offsetLeft;
-        my = e.offsetY - context.value!.canvas!.offsetTop;
+        const {x:mx,y:my} = window2canvas(context.value?.canvas!,e.clientX,e.clientY)
         if (isPainting) {
             // drawCircle(ctx, mx, my, ctx.lineWidth)
             drawLine(context.value!, lastAxis.x, lastAxis.y, mx, my, context.value!.lineWidth)

@@ -1,5 +1,6 @@
 import type { ComputedRef, Ref } from "vue"
 import type { ToolEventsObject } from "./type"
+import {window2canvas} from './help';
 export const EraserConfig = {
     delay: 10
 }
@@ -34,10 +35,8 @@ export function useEraser(context: Ref<CanvasRenderingContext2D | null> | Comput
         ctx.restore()
     }
     const onMousedown = (e: MouseEvent) => {
-        let sx, sy = 0
         isClearing = true
-        sx = e.offsetX - context.value!.canvas!.offsetLeft;
-        sy = e.offsetY - context.value!.canvas!.offsetTop;
+        const {x:sx,y:sy} = window2canvas(context.value?.canvas!,e.clientX,e.clientY)
         lastAxis.x = sx
         lastAxis.y = sy
         if (isClearing) {
@@ -45,9 +44,7 @@ export function useEraser(context: Ref<CanvasRenderingContext2D | null> | Comput
         }
     }
     const onMousemove = (e: MouseEvent) => {
-        let mx, my = 0
-        mx = e.offsetX - context.value!.canvas!.offsetLeft;
-        my = e.offsetY - context.value!.canvas!.offsetTop;
+        const {x:mx,y:my} = window2canvas(context.value?.canvas!,e.clientX,e.clientY)
         if (isClearing) {
             clearLine(context.value!, lastAxis.x, lastAxis.y, mx, my, context.value!.lineWidth)
             lastAxis.x = mx

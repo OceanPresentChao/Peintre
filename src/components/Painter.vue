@@ -7,29 +7,29 @@
         :height="height"></canvas>
       <canvas :width="width" :height="height" ref="imageRef"></canvas>
     </div>
-    <div class="flex-1 px-1 bg-gray-200 rounded-lg ml-2">
+    <div class="flex-0 px-1 bg-gray-100 rounded-lg ml-2">
       <div class="my-2 flex flex-col">
-        <el-button text type="primary" size="default" @click="changeTool(Tool.pencil)" style="margin-left: 12px;">
+        <button @click="changeTool(Tool.pencil)" style="margin-left: 12px;">
           {{ t("pencil") }}
-        </el-button>
-        <el-button text type="primary" size="default" @click="changeTool(Tool.eraser)">{{ t("eraser") }}</el-button>
-        <el-button text type="primary" size="default" @click="changeTool(Tool.line)">{{ t("line") }}</el-button>
-        <el-button text type="primary" size="default" @click="changeTool(Tool.rectangle)">
+        </button>
+        <button @click="changeTool(Tool.eraser)">{{ t("eraser") }}</button>
+        <button @click="changeTool(Tool.line)">{{ t("line") }}</button>
+        <button @click="changeTool(Tool.rectangle)">
           {{ t("rectangle") }}
-        </el-button>
-        <el-button text type="primary" size="default" @click="changeTool(Tool.ellipse)">
+        </button>
+        <button @click="changeTool(Tool.ellipse)">
           {{ t("ellipse") }}
-        </el-button>
-        <el-button text type="warning" size="default" @click="addLayer">{{ t("addL") }}
-        </el-button>
-        <el-button text type="warning" size="default" @click="deleteLayer" :disabled="layers.length <= 1">{{ t("rmL") }}
-        </el-button>
-        <el-button text type="success" size="default" @click="clearCtx(currentCtx)">{{ t("cls") }}</el-button>
-        <el-button text type="success" size="default" @click="goPrevious" :disabled="layeridStack.length <= 0">{{
-            t("pre")
+        </button>
+        <button @click="addLayer">{{ t("addL") }}
+        </button>
+        <button @click="deleteLayer" :disabled="layers.length <= 1">{{ t("rmL") }}
+        </button>
+        <button @click="clearCtx(currentCtx)">{{ t("cls") }}</button>
+        <button @click="goPrevious" :disabled="layeridStack.length <= 0">{{
+        t("pre")
         }}
-        </el-button>
-        <el-button text type="success" size="default" @click="saveImage">{{ t("save") }}</el-button>
+        </button>
+        <button @click="saveImage">{{ t("save") }}</button>
       </div>
       <div class="my-2 text-base flex justify-evenly">
         <span :style="{ color: currentToolConfig.strokecolor }">
@@ -41,7 +41,7 @@
           <el-color-picker show-alpha v-model="currentToolConfig.fillcolor" :predefine="predefineColors" />
         </span>
       </div>
-      <div>
+      <div class="px-3">
         <el-slider v-model="currentToolConfig.maxwidth" show-input :min="minLine" :max="maxLine" :step="1" />
       </div>
       <div class="my-2 text-lg text-gray-700 text-center">
@@ -58,9 +58,9 @@
         <draggable v-model="layers" item-key="id" ghost-class="ghost" @start="isDragging = true" class="flex flex-col"
           @end="isDragging = false">
           <template #item="{ element }">
-            <el-button type="danger" size="default" text @click="changeLayer(element.id)">
+            <button @click="changeLayer(element.id)">
               {{ element.name }}
-            </el-button>
+            </button>
           </template>
         </draggable>
       </div>
@@ -454,4 +454,5 @@ function saveImage() {
   opacity: 0.5;
   background: #c8ebfb;
 }
+
 </style>
