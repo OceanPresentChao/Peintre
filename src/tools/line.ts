@@ -1,51 +1,50 @@
-import type { ComputedRef, Ref } from "vue"
-import { window2canvas } from "./help"
-import type { ToolEventsObject } from "./type"
+import type { Point, ToolEventsObject } from './type'
 export const LineConfig = {
-    delay: 10
+  delay: 10,
 }
-export function useLine(context: Ref<CanvasRenderingContext2D | null> | ComputedRef<CanvasRenderingContext2D | null>, revert?: () => void): ToolEventsObject {
-    let isPainting = false
-    const startAxis = {
-        x: 0,
-        y: 0
-    }
-    const endAxis = {
-        x: 0,
-        y: 0
-    }
-    const emptyEventFun = (e: MouseEvent) => { }
+export function useLine(context: CanvasRenderingContext2D, revert?: () => void): ToolEventsObject {
+  let isPainting = false
+  const startAxis = {
+    x: 0,
+    y: 0,
+  }
+  const endAxis = {
+    x: 0,
+    y: 0,
+  }
 
-    const onMousedown = (e: MouseEvent) => {
-        if (!context.value) { return }
-        const {x:sx,y:sy} = window2canvas(context.value?.canvas!,e.clientX,e.clientY)
-        startAxis.x = sx
-        startAxis.y = sy
-        isPainting = true
+  const onMousedown = (location: Point) => {
+    startAxis.x = location.x
+    startAxis.y = location.y
+    isPainting = true
+  }
+  const onMousemove = (location: Point) => {
+    if (!revert)
+      return
+    const ctx = context
+    endAxis.x = location.x
+    endAxis.y = location.y
+    if (isPainting) {
+      revert()
+      ctx.beginPath()
+      context.moveTo(startAxis.x, startAxis.y)
+      ctx.lineTo(endAxis.x, endAxis.y)
+      ctx.closePath()
+      ctx.stroke()
     }
-    const onMousemove = (e: MouseEvent) => {
-        if (!context.value || !revert) { return }
-        let ctx = context.value
-        const {x:ex,y:ey} = window2canvas(context.value?.canvas!,e.clientX,e.clientY)
-        endAxis.x = ex
-        endAxis.y = ey
-        if (isPainting) {
-            revert()
-            ctx.beginPath()
-            context.value.moveTo(startAxis.x, startAxis.y)
-            ctx.lineTo(endAxis.x, endAxis.y)
-            ctx.closePath()
-            ctx.stroke()
-        }
-    }
-    const onMouseup = (e: MouseEvent) => {
-        isPainting = false
-    }
-    const onMouseleave = emptyEventFun
-    return {
-        onMousedown: useThrottleFn(onMousedown, LineConfig.delay),
-        onMousemove: useThrottleFn(onMousemove, LineConfig.delay),
-        onMouseup,
-        onMouseleave
-    }
+  }
+  const onMouseup = (location: Point) => {
+    isPainting = false
+    endAxis.x = location.x
+    endAxis.y = location.y
+    context.closePath()
+  }
+  return {
+    onMousedown: useThrottleFn(onMousedown, LineConfig.delay),
+    onMousemove: useThrottleFn(onMousemove, LineConfig.delay),
+    onMouseup,
+    onTouchstart: useThrottleFn(onMousedown, LineConfig.delay),
+    onTouchmove: useThrottleFn(onMousemove, LineConfig.delay),
+    onTouchend: onMouseup,
+  }
 }
