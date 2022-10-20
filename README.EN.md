@@ -1,21 +1,21 @@
 # Peintre
 
-一个开箱即用的可配置的轻量级Vue3画板组件。支持多图层、压感
+A lightweight configurable Vue3 canvas painter component. 
 
 <p align='center'>
-English | <a href='./README.md'>简体中文</a>
+<a href='./README.EN.md'>English</a> | 简体中文
 </p>
 
-## 特性
+## Feature
 
-1. 多图层 √
-2. 可切换画笔颜色、大小 √
-3. 图形工具 √
-4. 压感支持 √
-5. 触屏设备良好支持 √
-6. 图层拖拽摆放 √
-7. 滚轮修改画笔大小，光标大小随画笔变化 √
-8. 撤销操作 √
+1. Multi Layer √
+2. Change Tool Color&Size √
+3. Rectangle、Circle,etc Tool √
+4. Pressure Support √
+5. Mobile Touch Support √
+6. Switch Layer with Dragging √
+7. Change Tool Size with Scroll Event √
+8. Redo Support √
 
 ## Live Demo
 
@@ -49,5 +49,5 @@ import {Painter} from "peintre"
 | pressure    | whether support pressure or not   | boolean |   false    |
 | lang    | Language   | string |  "zh" \| "en"    |
 
-## 开发博客
-[Peintre开发日志](http://oceanpresent.art/posts/hard-boiled-wonderland/peintre)
+## DevelopmentBlog(zh-CN)
+[Peintre DevelopmentBlog](http://oceanpresent.art/posts/hard-boiled-wonderland/peintre)
