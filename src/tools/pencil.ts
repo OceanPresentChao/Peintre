@@ -4,7 +4,7 @@ export const PencilConfig = {
   maxWidth: 500,
   minWidth: 1,
 }
-export function usePencil(context: CanvasRenderingContext2D, revert?: () => void): ToolEventsObject {
+export function usePencil(_?: () => void): ToolEventsObject {
   let isPainting = false
   const lastAxis = {
     x: 0,
@@ -35,14 +35,14 @@ export function usePencil(context: CanvasRenderingContext2D, revert?: () => void
     ctx.closePath()
     // ctx.restore()
   }
-  const onMousedown = (location: Point) => {
+  const onMousedown = (context: CanvasRenderingContext2D, location: Point) => {
     isPainting = true
     lastAxis.x = location.x
     lastAxis.y = location.y
     if (isPainting)
       drawCircle(context, location.x, location.y, context.lineWidth / 2)
   }
-  const onMousemove = (location: Point) => {
+  const onMousemove = (context: CanvasRenderingContext2D, location: Point) => {
     if (isPainting) {
       // drawCircle(ctx, mx, my, ctx.lineWidth)
       drawLine(context, lastAxis.x, lastAxis.y, location.x, location.y, context.lineWidth)
@@ -50,7 +50,7 @@ export function usePencil(context: CanvasRenderingContext2D, revert?: () => void
       lastAxis.y = location.y
     }
   }
-  const onMouseup = (location: Point) => {
+  const onMouseup = (context: CanvasRenderingContext2D, location: Point) => {
     lastAxis.x = location.x
     lastAxis.y = location.y
     isPainting = false

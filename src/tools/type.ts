@@ -1,11 +1,11 @@
 export interface ToolEventsObject {
-  onMousedown?: (location: Point) => any
-  onMousemove?: (location: Point) => any
-  onMouseup?: (location: Point) => any
-  onMouseleave?: (location: Point) => any
-  onTouchstart?: (location: Point) => any
-  onTouchmove?: (location: Point) => any
-  onTouchend?: (location: Point) => any
+  onMousedown?: (context: CanvasRenderingContext2D, location: Point) => any
+  onMousemove?: (context: CanvasRenderingContext2D, location: Point) => any
+  onMouseup?: (context: CanvasRenderingContext2D, location: Point) => any
+  onMouseleave?: (context: CanvasRenderingContext2D, location: Point) => any
+  onTouchstart?: (context: CanvasRenderingContext2D, location: Point) => any
+  onTouchmove?: (context: CanvasRenderingContext2D, location: Point) => any
+  onTouchend?: (context: CanvasRenderingContext2D, location: Point) => any
   [propName: string]: any
 }
 

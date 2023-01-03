@@ -2,7 +2,7 @@ import type { Point, ToolEventsObject } from './type'
 export const EraserConfig = {
   delay: 10,
 }
-export function useEraser(context: CanvasRenderingContext2D, revert?: () => void): ToolEventsObject {
+export function useEraser(_?: () => void): ToolEventsObject {
   let isClearing = false
   const lastAxis = {
     x: 0,
@@ -31,21 +31,21 @@ export function useEraser(context: CanvasRenderingContext2D, revert?: () => void
     ctx.stroke()
     ctx.restore()
   }
-  const onMousedown = (location: Point) => {
+  const onMousedown = (context: CanvasRenderingContext2D, location: Point) => {
     isClearing = true
     lastAxis.x = location.x
     lastAxis.y = location.y
     if (isClearing)
       clearCircle(context !, location.x, location.y, context !.lineWidth / 2)
   }
-  const onMousemove = (location: Point) => {
+  const onMousemove = (context: CanvasRenderingContext2D, location: Point) => {
     if (isClearing) {
       clearLine(context !, lastAxis.x, lastAxis.y, location.x, location.y, context !.lineWidth)
       lastAxis.x = location.x
       lastAxis.y = location.y
     }
   }
-  const onMouseup = (location: Point) => {
+  const onMouseup = (context: CanvasRenderingContext2D, location: Point) => {
     lastAxis.x = location.x
     lastAxis.y = location.y
     isClearing = false

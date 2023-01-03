@@ -2,7 +2,7 @@ import type { Point, ToolEventsObject } from './type'
 export const LineConfig = {
   delay: 10,
 }
-export function useLine(context: CanvasRenderingContext2D, revert?: () => void): ToolEventsObject {
+export function useLine(revert?: () => void): ToolEventsObject {
   let isPainting = false
   const startAxis = {
     x: 0,
@@ -13,12 +13,12 @@ export function useLine(context: CanvasRenderingContext2D, revert?: () => void):
     y: 0,
   }
 
-  const onMousedown = (location: Point) => {
+  const onMousedown = (context: CanvasRenderingContext2D, location: Point) => {
     startAxis.x = location.x
     startAxis.y = location.y
     isPainting = true
   }
-  const onMousemove = (location: Point) => {
+  const onMousemove = (context: CanvasRenderingContext2D, location: Point) => {
     if (!revert)
       return
     const ctx = context
@@ -33,7 +33,7 @@ export function useLine(context: CanvasRenderingContext2D, revert?: () => void):
       ctx.stroke()
     }
   }
-  const onMouseup = (location: Point) => {
+  const onMouseup = (context: CanvasRenderingContext2D, location: Point) => {
     isPainting = false
     endAxis.x = location.x
     endAxis.y = location.y

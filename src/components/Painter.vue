@@ -223,11 +223,11 @@ function initTools() {
       drawImageData(lastLayer.value.canvas, image)
     }
   }
-  const pencil = usePencil(currentCtx.value, revert)
-  const eraser = useEraser(currentCtx.value, revert)
-  const line = useLine(currentCtx.value, revert)
-  const rectangle = useRectangle(currentCtx.value, revert)
-  const ellipse = useEllipse(currentCtx.value, revert)
+  const pencil = usePencil(revert)
+  const eraser = useEraser(revert)
+  const line = useLine(revert)
+  const rectangle = useRectangle(revert)
+  const ellipse = useEllipse(revert)
 
   // const circle = useLine(currentCtx, revert)
   const getcurrentToolEvents: () => ToolEventsObject = () => {
@@ -246,55 +246,55 @@ function initTools() {
   }
   const onMousedown = (e: MouseEvent) => {
     e.preventDefault()
-    if (!currentLayer.value)
+    if (!currentLayer.value || !currentCtx.value)
       return
     layeridStack.value.push(currentLayer.value.id)
     pushImage(currentLayer.value.id, getImageData(currentLayer.value.canvas))
-    getcurrentToolEvents().onMousedown!(window2canvas(currentLayer.value.canvas!, e.clientX, e.clientY))
+    getcurrentToolEvents().onMousedown!(currentCtx.value, window2canvas(currentLayer.value.canvas!, e.clientX, e.clientY))
   }
   const onMousemove = (e: MouseEvent) => {
     e.preventDefault()
-    if (!currentLayer.value)
+    if (!currentLayer.value || !currentCtx.value)
       return
     if (getcurrentToolEvents().onMousemove)
-      getcurrentToolEvents().onMousemove!(window2canvas(currentLayer.value.canvas!, e.clientX, e.clientY))
+      getcurrentToolEvents().onMousemove!(currentCtx.value, window2canvas(currentLayer.value.canvas!, e.clientX, e.clientY))
   }
   const onMouseup = (e: MouseEvent) => {
     e.preventDefault()
-    if (!currentLayer.value)
+    if (!currentLayer.value || !currentCtx.value)
       return
     if (getcurrentToolEvents().onMouseup)
-      getcurrentToolEvents().onMouseup!(window2canvas(currentLayer.value.canvas!, e.clientX, e.clientY))
+      getcurrentToolEvents().onMouseup!(currentCtx.value, window2canvas(currentLayer.value.canvas!, e.clientX, e.clientY))
     if (props.pressure)
       currentToolConfig.value.linewidth = props.minLine
   }
   const onMouseleave = (e: MouseEvent) => {
     e.preventDefault()
-    if (!currentLayer.value)
+    if (!currentLayer.value || !currentCtx.value)
       return
     if (getcurrentToolEvents().onMouseleave)
-      getcurrentToolEvents().onMouseleave!(window2canvas(currentLayer.value.canvas!, e.clientX, e.clientY))
+      getcurrentToolEvents().onMouseleave!(currentCtx.value, window2canvas(currentLayer.value.canvas!, e.clientX, e.clientY))
   }
   const onTouchstart = (e: TouchEvent) => {
     e.preventDefault()
-    if (!currentLayer.value)
+    if (!currentLayer.value || !currentCtx.value)
       return
     if (getcurrentToolEvents().onTouchstart)
-      getcurrentToolEvents().onTouchstart!(window2canvas(currentLayer.value.canvas!, e.touches[0].clientX, e.touches[0].clientY))
+      getcurrentToolEvents().onTouchstart!(currentCtx.value, window2canvas(currentLayer.value.canvas!, e.touches[0].clientX, e.touches[0].clientY))
   }
   const onTouchmove = (e: TouchEvent) => {
     e.preventDefault()
-    if (!currentLayer.value)
+    if (!currentLayer.value || !currentCtx.value)
       return
     if (getcurrentToolEvents().onTouchmove)
-      getcurrentToolEvents().onTouchmove!(window2canvas(currentLayer.value.canvas!, e.touches[0].clientX, e.touches[0].clientY))
+      getcurrentToolEvents().onTouchmove!(currentCtx.value, window2canvas(currentLayer.value.canvas!, e.touches[0].clientX, e.touches[0].clientY))
   }
   const onTouchend = (e: TouchEvent) => {
     e.preventDefault()
-    if (!currentLayer.value)
+    if (!currentLayer.value || !currentCtx.value)
       return
     if (getcurrentToolEvents().onTouchend)
-      getcurrentToolEvents().onTouchend!(window2canvas(currentLayer.value.canvas!, 0, 0))
+      getcurrentToolEvents().onTouchend!(currentCtx.value, window2canvas(currentLayer.value.canvas!, 0, 0))
   }
   canvasContainerRef.value!.addEventListener('mousedown', onMousedown)
   canvasContainerRef.value!.addEventListener('mousemove', onMousemove)
